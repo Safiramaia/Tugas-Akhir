@@ -1,5 +1,4 @@
 <x-app-layout :title="'Dashboard Kabid Dukbis'">
-    <x-alert />
     <div class="grid grid-cols-1 gap-4 mt-4 md:grid-cols-2 lg:grid-cols-3">
         {{-- Jumlah Petugas Security --}}
         <a href="{{ route('kabid-dukbis.data-petugas-security') }}">

@@ -50,10 +50,33 @@
             </nav>
 
             <!-- Tombol login (desktop only) -->
-            <a href="{{ route('login') }}"
-                class="hidden md:inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-full transition">
-                Login
-            </a>
+            @if (Route::has('login'))
+                <nav class="hidden md:inline-block">
+                    @auth
+                        @if (auth()->user()->role === 'admin')
+                            <a href="{{ route('admin.dashboard') }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-normal px-5 py-2 rounded-full transition">
+                                Dashboard Admin
+                            </a>
+                        @elseif (auth()->user()->role === 'petugas_security')
+                            <a href="{{ route('petugas-security.dashboard') }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-normal px-5 py-2 rounded-full transition">
+                                Dashboard Petugas Security
+                            </a>
+                        @elseif (auth()->user()->role === 'kabid_dukbis')
+                            <a href="{{ route('kabid-dukbis.dashboard') }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-normal px-5 py-2 rounded-full transition">
+                                Dashboard Kabid Dukbis
+                            </a>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}"
+                           class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full shadow transition">
+                            Login
+                        </a>
+                    @endauth
+                </nav>
+            @endif
         </div>
 
         <!-- Mobile Menu (toggle content) -->
@@ -66,12 +89,12 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-center px-4 pt-10 bg-gray-50 bg-cover bg-center">
+   <section class="bg-gray-50 flex items-center justify-center px-10 py-12 md:py-24 lg:py-32">
         <div class="max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center gap-10">
             <!-- Text Content -->
             <div class="md:w-1/2 text-center md:text-left">
-                <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
-                    Selamat Datang di <span class="text-blue-600">SIM PATROLI</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-blue-600 leading-tight mb-6">
+                    Selamat Datang di SIM PATROLI</span>
                 </h1>
                 <p class="text-gray-700 text-lg mb-6">
                     SIM PATROLI adalah sistem berbasis website untuk memantau
@@ -91,7 +114,7 @@
     </section>
 
     <!-- Tentang SUCOFINDO -->
-    <section id="tentang" class="py-10 px-4 bg-gray-50">
+    <section id="tentang" class="py-10 px-10 bg-gray-50">
         <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <!-- Gambar -->
             <div class="flex justify-center">

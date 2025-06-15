@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Riwayat Patroli Anda</h2>
 
         <!-- Filter -->
-        <div class="overflow-x-auto border border-gray-200 rounded-lg mb-4">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-md mb-4">
             <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-4 py-3 bg-white">
                 <form action="{{ route('petugas-security.riwayat-patroli') }}" method="GET"
                     class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">

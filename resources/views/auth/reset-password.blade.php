@@ -4,7 +4,7 @@
             <!-- Logo dan Judul -->
             <div class="flex justify-center">
                 <a href="#" class="flex flex-col items-center text-xl font-semibold text-gray-900 dark:text-white">
-                    <img class="w-20 h-auto mb-2" src="{{ asset('storage/logo/logo-shield.png') }}" alt="logo">
+                    <img class="w-24 h-auto mb-2" src="{{ asset('storage/logo/sucofindo.png') }}" alt="logo">
                     SIM PATROLI
                 </a>
             </div>

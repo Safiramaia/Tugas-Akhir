@@ -1,9 +1,8 @@
 <x-app-layout :title="'Form Patroli'">
-    <x-alert />
     <div class="container mx-auto p-4">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Form Patroli</h2>
 
-        <div class="max-w-full md:max-w-4xl bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div class="max-w-full md:max-w-4xl bg-white p-6 rounded-lg shadow-md border border-gray-200">
             <form action="{{ route('patroli.store') }}" method="POST" class="space-y-6">
                 @csrf
 

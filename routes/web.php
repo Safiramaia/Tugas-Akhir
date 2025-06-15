@@ -14,9 +14,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('landing-page');
 });
-// Route::get('/landing-page', function () {
-//     return view('landing-page');
-// });
 
 // Authenticated Routes (Sudah Login)
 Route::middleware('auth')->group(function () {

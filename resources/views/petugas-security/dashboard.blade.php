@@ -1,11 +1,16 @@
 <x-app-layout :title="'Dashboard Petugas Security'">
-    <x-alert />
-
+ 
     @if ($jumlahBelum > 0)
         <div class="mt-6 mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded shadow">
             <strong>Perhatian!</strong> Masih ada <strong>{{ $jumlahBelum }}</strong> lokasi yang belum dipatroli hari
             ini.
             Segera lakukan patroli untuk menyelesaikan tugas hari ini.
+        </div>
+    @endif
+
+    @if ($totalLokasi == 0)
+        <div class="mt-6 mb-4 p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded shadow">
+            <strong>Informasi :</strong> Hari ini kamu tidak memiliki jadwal patroli.
         </div>
     @endif
 

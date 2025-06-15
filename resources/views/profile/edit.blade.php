@@ -1,5 +1,5 @@
 <x-app-layout :title="'Edit Profile'">
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto px-4 py-8">
         <h2 class="text-center text-2xl font-bold mb-6 text-gray-800">Edit Profil</h2>
 
         <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data"

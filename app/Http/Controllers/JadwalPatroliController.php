@@ -122,23 +122,10 @@ class JadwalPatroliController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'tanggal' => 'required|date',
         ]);
-
-        // Cek apakah tanggal sudah dipakai jadwal lain (selain yang sedang diedit)
-        $exists = JadwalPatroli::whereDate('tanggal', $request->tanggal)
-            ->where('id', '!=', $jadwalPatroli->id)
-            ->exists();
-
-        if ($exists) {
-            return redirect()->route('jadwal-patroli.index')
-                ->with('error', 'Tanggal tersebut sudah memiliki petugas yang dijadwalkan.')
-                ->withInput();
-        }
 
         $jadwalPatroli->update([
             'user_id' => $request->user_id,
-            'tanggal' => $request->tanggal,
         ]);
 
         return redirect()->route('jadwal-patroli.index')

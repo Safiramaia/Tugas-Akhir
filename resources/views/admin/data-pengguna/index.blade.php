@@ -1,9 +1,8 @@
 <x-app-layout :title="'Data Pengguna'">
-    <x-alert />
     <div class="container mx-auto p-4">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Daftar Pengguna</h2>
 
-        <div class="overflow-x-auto border border-gray-200 rounded-lg mb-4">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-md mb-4">
             <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-4 py-3 bg-white">
 
                 <form action="{{ route('data-pengguna.index') }}" method="GET"

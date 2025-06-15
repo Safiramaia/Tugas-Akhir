@@ -1,95 +1,99 @@
 <x-app-layout :title="'Data Jadwal Patroli'">
-    <x-alert />
     <div class="container mx-auto p-4">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-            <h2 class="text-xl font-bold text-gray-800">
+        <div class="mb-6">
+            <!-- Judul -->
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
                 Jadwal Patroli Bulan {{ $currentMonth->translatedFormat('F Y') }}
             </h2>
 
-            <!-- Container tombol yang fleksibel -->
-            <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                <!-- Filter bulan -->
+            <!-- Container utama -->
+            <div class="flex flex-wrap justify-between items-center gap-2">
+
+                <!-- Filter bulan (sebelah kiri) -->
                 <form method="GET" action="{{ route('jadwal-patroli.index') }}">
                     <input type="month" name="month" value="{{ $currentMonth->format('Y-m') }}"
                         onchange="this.form.submit()"
                         class="border border-gray-300 rounded px-4 py-2 text-sm text-gray-700 shadow-sm w-full sm:w-auto">
                 </form>
 
-                <!-- Generate ulang -->
-                <form action="{{ route('jadwal-patroli.generate-ulang') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
-                    <button type="submit"
-                        class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
-                        Generate Ulang
-                    </button>
-                </form>
+                <!-- Grup tombol di sebelah kanan -->
+                <div class="flex flex-wrap gap-2">
+                    <!-- Generate ulang -->
+                    <form action="{{ route('jadwal-patroli.generate-ulang') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
+                        <button type="submit"
+                            class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
+                            Generate Ulang
+                        </button>
+                    </form>
 
-                <!-- Tambah jadwal -->
-                <button data-modal-target="tambahModal" data-modal-toggle="tambahModal"
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
-                    Tambah Jadwal
-                </button>
-                <!-- Modal Tambah Jadwal -->
-                <div id="tambahModal" tabindex="-1" aria-hidden="true"
-                    class="hidden fixed top-0 left-0 right-0 z-50 items-center justify-center w-full h-full bg-black bg-opacity-50">
-                    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-                        <div class="p-4 border-b">
-                            <h3 class="text-lg font-semibold">Tambah Jadwal Patroli</h3>
+                    <!-- Tambah jadwal -->
+                    <button data-modal-target="tambahModal" data-modal-toggle="tambahModal"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
+                        Tambah Jadwal
+                    </button>
+                    <!-- Modal Tambah Jadwal -->
+                    <div id="tambahModal" tabindex="-1" aria-hidden="true"
+                        class="hidden fixed top-0 left-0 right-0 z-50 items-center justify-center w-full h-full bg-black bg-opacity-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold">Tambah Jadwal Patroli</h3>
+                            </div>
+                            <form action="{{ route('jadwal-patroli.store') }}" method="POST" class="p-6 space-y-5">
+                                @csrf
+                                <div>
+                                    <label for="user_id" class="block mb-1 text-sm font-medium text-gray-700">
+                                        Petugas
+                                    </label>
+                                    <select id="user_id" name="user_id" required
+                                        class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
+                                        <option value="">--- Pilih Petugas ---</option>
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="tanggal" class="block mb-1 text-sm font-medium text-gray-700">
+                                        Tanggal
+                                    </label>
+                                    <input type="date" id="tanggal" name="tanggal" required
+                                        class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
+                                </div>
+                                <div class="flex justify-end gap-3 pt-4">
+                                    <button type="button" data-modal-hide="tambahModal"
+                                        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg font-semibold">
+                                        Batal
+                                    </button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-semibold">
+                                        Simpan
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <form action="{{ route('jadwal-patroli.store') }}" method="POST" class="p-6 space-y-5">
-                            @csrf
-                            <div>
-                                <label for="user_id" class="block mb-1 text-sm font-medium text-gray-700">
-                                    Petugas
-                                </label>
-                                <select id="user_id" name="user_id" required
-                                    class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
-                                    <option value="">--- Pilih Petugas ---</option>
-                                    @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label for="tanggal" class="block mb-1 text-sm font-medium text-gray-700">
-                                    Tanggal
-                                </label>
-                                <input type="date" id="tanggal" name="tanggal" required
-                                    class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
-                            </div>
-                            <div class="flex justify-end gap-3 pt-4">
-                                <button type="button" data-modal-hide="tambahModal"
-                                    class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg font-semibold">
-                                    Batal
-                                </button>
-                                <button type="submit"
-                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-semibold">
-                                    Simpan
-                                </button>
-                            </div>
-                        </form>
                     </div>
-                </div>
 
-                <!-- Cetak -->
-                <form action="{{ route('jadwal-patroli.cetak-jadwal') }}" method="GET">
-                    <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
-                    <button type="submit"
-                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
-                        <svg class="w-4 h-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
-                            fill="currentColor" aria-hidden="true" focusable="false">
-                            <path
-                                d="M128 0C92.7 0 64 28.7 64 64l0 96 64 0 0-96 226.7 0L384 93.3l0 66.7 64 0 0-66.7c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0L128 0zM384 352l0 32 0 64-256 0 0-64 0-16 0-16 256 0zm64 32l32 0c17.7 0 32-14.3 32-32l0-96c0-35.3-28.7-64-64-64L64 192c-35.3 0-64 28.7-64 64l0 96c0 17.7 14.3 32 32 32l32 0 0 64c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-64zM432 248a24 24 0 1 1 0 48 24 24 0 1 1 0-48z" />
-                        </svg>
-                        Cetak
-                    </button>
-                </form>
+                    <!-- Cetak -->
+                    <form action="{{ route('jadwal-patroli.cetak-jadwal') }}" method="GET">
+                        <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
+                            <svg class="w-4 h-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
+                                <path
+                                    d="M128 0C92.7 0 64 28.7 64 64l0 96 64 0 0-96 226.7 0L384 93.3l0 66.7 64 0 0-66.7c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0L128 0zM384 352l0 32 0 64-256 0 0-64 0-16 0-16 256 0zm64 32l32 0c17.7 0 32-14.3 32-32l0-96c0-35.3-28.7-64-64-64L64 192c-35.3 0-64 28.7-64 64l0 96c0 17.7 14.3 32 32 32l32 0 0 64c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-64zM432 248a24 24 0 1 1 0 48 24 24 0 1 1 0-48z" />
+                            </svg>
+                            Cetak
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
         {{-- Kalender --}}
-        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow ">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-lg">
             <div class="min-w-[700px] grid grid-cols-7 gap-px text-center text-sm select-none">
                 {{-- Header Hari --}}
                 @foreach (['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'] as $day)
@@ -173,7 +177,9 @@
                                                 @csrf
                                                 @method('PUT')
                                                 <div>
-                                                    <label for="user_id_edit_{{ $jadwal->id }}" class="block mb-1 text-sm font-medium text-gray-700"></label>
+                                                    
+                                                    <label for="user_id_edit_{{ $jadwal->id }}"
+                                                        class="block mb-1 text-sm font-medium text-gray-700">Petugas</label>
                                                     <select id="user_id_edit_{{ $jadwal->id }}" name="user_id"
                                                         required
                                                         class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
@@ -185,12 +191,6 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                </div>
-                                                <div>
-                                                    <label for="tanggal_edit_{{ $jadwal->id }}" class="block mb-1 text-sm font-medium text-gray-700"></label>
-                                                    <input type="date" id="tanggal_edit_{{ $jadwal->id }}"
-                                                        name="tanggal" value="{{ $jadwal->tanggal }}" required
-                                                        class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
                                                 </div>
                                                 <div class="flex justify-end gap-3 pt-4">
                                                     <button type="button"

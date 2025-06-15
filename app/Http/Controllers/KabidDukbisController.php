@@ -97,7 +97,7 @@ class KabidDukbisController extends Controller
                 $query->where('nama_lokasi', 'like', '%' . $search . '%');
             })
             ->orderBy('nama_lokasi')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('kabid-dukbis.data-lokasi-patroli', compact('lokasiPatroli', 'search'));
@@ -127,66 +127,55 @@ class KabidDukbisController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('kabid-dukbis.laporan-patroli', compact('dataPatroli', 'search','status'));
+        return view('kabid-dukbis.laporan-patroli', compact('dataPatroli', 'search', 'status'));
     }
 
     public function cetakLaporan(Request $request)
     {
+        // Validasi
         $validated = Validator::make($request->all(), [
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
-        ], [
-            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
         ]);
 
+        // Validasi tambahan
         $validated->after(function ($validator) use ($request) {
             $start = Carbon::parse($request->tanggal_mulai);
             $end = Carbon::parse($request->tanggal_selesai);
 
             if ($start->format('Y-m') !== $end->format('Y-m')) {
-                $validator->errors()->add(
-                    'tanggal_selesai',
-                    'Tanggal mulai dan tanggal selesai harus berada dalam bulan dan tahun yang sama.'
-                );
+                $validator->errors()->add('tanggal_selesai', 'Tanggal mulai dan selesai harus dalam bulan & tahun yang sama.');
             }
 
             if ($start->diffInMonths($end) > 1) {
-                $validator->errors()->add(
-                    'tanggal_selesai',
-                    'Rentang tanggal tidak boleh lebih dari satu bulan.'
-                );
+                $validator->errors()->add('tanggal_selesai', 'Rentang tanggal tidak boleh lebih dari satu bulan.');
             }
         });
 
         if ($validated->fails()) {
-            $errorMessage = $validated->errors()->first();
-            return back()
-                ->withInput()
-                ->with('error', $errorMessage);
+            return back()->withInput()->with('error', $validated->errors()->first());
         }
+
         $startDate = $request->tanggal_mulai;
         $endDate = $request->tanggal_selesai;
+        $status = $request->status; // ← tambahkan ini
 
-        // Ambil data patroli
+        // Query data patroli
         $dataPatroli = Patroli::with(['user', 'lokasiPatroli'])
             ->whereBetween('tanggal_patroli', [$startDate, $endDate])
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            })
             ->get();
 
         if ($dataPatroli->isEmpty()) {
-            return back()->with('error', 'Data patroli tidak ditemukan dalam rentang tanggal tersebut.');
+            return back()->with('error', 'Data patroli tidak ditemukan dalam rentang dan filter status tersebut.');
         }
 
         $user = Auth::user();
-
-        $qrText = "Laporan Patroli\n" .
-            "Disahkan oleh : " . ($user ? $user->nama : '-') . "\n" .
-            "NIP : " . ($user ? $user->nip : '-') . "\n" .
-            "Tanggal : " . now()->translatedFormat('d F Y') . "\n" .
-            "(SUCOFINDO - Cabang Cilacap)";
-
+        $qrText = "Laporan Patroli\nDisahkan oleh: " . ($user->nama ?? '-') . "\nNIP: " . ($user->nip ?? '-') . "\nTanggal: " . now()->translatedFormat('d F Y');
         $qrCode = base64_encode(QrCode::format('png')->size(150)->generate($qrText));
 
-        // Generate PDF
         $pdf = Pdf::loadView('kabid-dukbis.cetak-laporan-patroli', [
             'data' => $dataPatroli,
             'startDate' => $startDate,
@@ -194,8 +183,6 @@ class KabidDukbisController extends Controller
             'qrCode' => $qrCode,
         ])->setPaper('A4', 'portrait');
 
-        $fileName = 'laporan_patroli_' . now()->format('Ymd_His') . '.pdf';
-
-        return $pdf->download($fileName);
+        return $pdf->download('laporan_patroli_' . now()->format('Ymd_His') . '.pdf');
     }
 }

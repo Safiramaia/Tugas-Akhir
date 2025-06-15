@@ -107,7 +107,7 @@
     // Label tetap di pusat
     L.marker(defaultPos)
         .addTo(map)
-        .bindTooltip("SUCOFINDO Cabang Cilacap", {
+        .bindTooltip("PT Sucofindo Cabang Cilacap", {
             permanent: true,
             direction: 'center',
             className: 'map-label'
@@ -130,7 +130,7 @@
             Swal.fire({
                 icon: 'warning',
                 title: 'Diluar Area',
-                text: 'Klik hanya diperbolehkan dalam area SUCOFINDO!',
+                text: 'Klik hanya diperbolehkan dalam area PT Sucofindo Cabang Cilacap!',
                 confirmButtonColor: '#3085d6',
                 confirmButtonText: 'OK'
             });

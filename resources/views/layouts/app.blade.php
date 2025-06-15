@@ -44,10 +44,11 @@
         @endif
 
         <!-- Page Content -->
-        <main class="p-4 md:ml-64 h-auto pt-14">
+        <main class="p-4 md:ml-64 h-auto pt-14 bg-white">
             {{ $slot }}
+            
+            <x-alert />
         </main>
-        
     </div>
 
     <!-- FLOWBITE JS -->

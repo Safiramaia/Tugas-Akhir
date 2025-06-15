@@ -1,5 +1,4 @@
 <x-app-layout :title="'Profile'">
-    <x-alert />
     <div class="container mx-auto px-4 py-8">
         <h2 class="text-center text-2xl font-semibold text-gray-800 mb-4">Profil Pengguna</h2>
 
@@ -50,7 +49,7 @@
             <div class="flex justify-end mt-8">
                 <a href="{{ route('profile.edit') }}"
                     class="inline-block px-5 py-2 bg-yellow-500 text-white font-semibold text-sm rounded-lg hover:bg-yellow-600 transition duration-200">
-                    Edit Profile
+                    Edit Profil
                 </a>
             </div>
         </div>

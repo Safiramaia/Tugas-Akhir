@@ -15,12 +15,28 @@ class PetugasSecurityController extends Controller
     public function dashboard()
     {
         $userId = Auth::user()->id;
-        $today = Carbon::today()->toDateString(); // tanggal hari ini
+        $today = Carbon::today()->toDateString();
 
-        // Total semua lokasi patroli
+        // Cek apakah user ini dijadwalkan hari ini
+        $dijadwalkan = JadwalPatroli::where('user_id', $userId)
+            ->whereDate('tanggal', $today)
+            ->exists();
+
+        // Jika tidak dijadwalkan, jangan munculkan reminder dan data patroli
+        if (!$dijadwalkan) {
+            return view('petugas-security.dashboard', [
+                'totalLokasi' => 0,
+                'jumlahSelesai' => 0,
+                'jumlahBelum' => 0,
+                'persentase' => 0,
+                'belumDipatroli' => collect(),
+                'aktivitasTerakhir' => collect()
+            ]);
+        }
+
+        // Jika dijadwalkan, lanjutkan seperti biasa
         $totalLokasi = LokasiPatroli::count();
 
-        // Lokasi yang sudah dipatroli hari ini oleh user
         $patroliHariIni = Patroli::with('lokasiPatroli')
             ->where('user_id', $userId)
             ->whereDate('tanggal_patroli', $today)
@@ -32,10 +48,7 @@ class PetugasSecurityController extends Controller
         $jumlahBelum = $totalLokasi - $jumlahSelesai;
         $persentase = $totalLokasi > 0 ? ($jumlahSelesai / $totalLokasi) * 100 : 0;
 
-        // Lokasi yang belum dipatroli
         $belumDipatroli = LokasiPatroli::whereNotIn('id', $lokasiDipatroliIds)->get();
-
-        // Aktivitas patroli terbaru hari ini, maksimum 5 data
         $aktivitasTerakhir = $patroliHariIni->sortByDesc('waktu_patroli')->take(5);
 
         return view('petugas-security.dashboard', compact(
@@ -84,7 +97,7 @@ class PetugasSecurityController extends Controller
                 $query->where('status', $status);
             })
             ->orderByDesc('tanggal_patroli')
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
 
         return view('petugas-security.riwayat-patroli', compact('riwayatPatroli'));

@@ -2,7 +2,7 @@
     <div class="container mx-auto p-4">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Daftar Petugas Security</h2>
 
-        <div class="overflow-x-auto border border-gray-200 rounded-lg mb-4">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-md mb-4">
             <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-4 py-3 bg-white">
                 <form action="{{ route('kabid-dukbis.data-petugas-security') }}" method="GET"
                     class="w-full md:w-1/2 flex flex-col md:flex-row items-start md:items-center gap-2">

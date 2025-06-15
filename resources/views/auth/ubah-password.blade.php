@@ -1,5 +1,4 @@
 <x-app-layout :title="'Ubah Password'">
-    <x-alert />
     <h2 class="text-center text-2xl font-semibold text-gray-800 mt-4 mb-6">Ubah Password</h2>
 
     <div class="bg-white border border-gray-200 rounded-xl shadow-lg p-6 md:p-10 max-w-3xl mx-auto">
