@@ -32,15 +32,14 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'nama' => ['required', 'regex:/^[A-Za-z\s]+$/', 'max:30'],
             'no_telepon' => ['required', 'regex:/^\d+$/', 'digits_between:6,15'],
-            'alamat' => ['nullable', 'string', 'max:500'],
-            'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'alamat' => ['required', 'string'],
+            'foto' => ['nullable', 'image', 'mimes:png,jpg', 'max:2048'],
         ], [
             'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
             'no_telepon.regex' => 'Nomor telepon harus berupa angka.',
         ]);
 
         if ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada
             if ($user->foto && Storage::disk('public')->exists($user->foto)) {
                 Storage::disk('public')->delete($user->foto);
             }
@@ -48,11 +47,17 @@ class ProfileController extends Controller
             $file = $request->file('foto');
             $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('foto_user', $filename, 'public');
-
             $validated['foto'] = $path;
         }
 
-        $user->fill($validated);
+        $user->nama = $validated['nama'];
+        $user->no_telepon = $validated['no_telepon'];
+        $user->alamat = $validated['alamat'];
+
+        if (isset($validated['foto'])) {
+            $user->foto = $validated['foto'];
+        }
+
         $user->save();
 
         return redirect()->route('profile.index')->with('success', 'Profil berhasil diperbarui.');

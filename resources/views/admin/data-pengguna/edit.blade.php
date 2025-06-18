@@ -51,7 +51,7 @@
                         </label>
                         <select id="role" name="role" required
                             class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
-                            <option value="">--- Pilih Hak Akses ---</option>
+                            <option value="">-- Pilih Hak Akses --</option>
                             <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                             <option value="petugas_security" {{ old('role', $user->role) == 'petugas_security' ? 'selected' : '' }}>Petugas Security</option>
                             <option value="kabid_dukbis" {{ old('role', $user->role) == 'kabid_dukbis' ? 'selected' : '' }}>Kabid Dukbis</option>

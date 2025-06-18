@@ -4,7 +4,7 @@
 
         <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-md mb-4">
             <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-4 py-3 bg-white">
-
+                {{-- Search --}}
                 <form id="search-form" action="{{ route('lokasi-patroli.index') }}" method="GET"
                     class="flex flex-row items-center gap-2 w-full md:w-1/2">
 
@@ -35,6 +35,7 @@
                     @endif
                 </form>
 
+                {{-- Tambah Lokasi --}}
                 <a href="{{ route('lokasi-patroli.create') }}"
                     class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm text-center font-semibold whitespace-nowrap">
                     Tambah Lokasi
@@ -42,6 +43,7 @@
             </div>
         </div>
 
+        {{-- Tabel Data Lokasi Patroli --}}
         <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-lg mb-4">
             <table class="table-auto w-full text-sm text-gray-700">
                 <thead class="bg-blue-200 text-gray-800 uppercase text-xs">
@@ -74,6 +76,7 @@
                             </td>
                             <td class="px-4 py-2 text-center">
                                 <div class="flex overflow-x-auto no-scrollbar gap-1">
+                                    {{-- Unduh QR Code --}}
                                     @if ($data->qr_code)
                                         <a href="{{ route('lokasi-patroli.downloadQrCode', $data->id) }}"
                                             class="inline-flex items-center px-2 py-1 text-sm text-white bg-green-600 hover:bg-green-700 rounded whitespace-nowrap">
@@ -88,6 +91,8 @@
                                             Unduh
                                         </a>
                                     @endif
+
+                                    {{-- Edit --}}
                                     <a href="{{ route('lokasi-patroli.edit', $data->id) }}"
                                         class="inline-flex items-center px-2 py-1 text-sm text-white bg-yellow-400 hover:bg-yellow-500 rounded whitespace-nowrap">
                                         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -99,6 +104,8 @@
                                         </svg>
                                         Edit
                                     </a>
+
+                                    {{-- Hapus --}}
                                     <form action="{{ route('lokasi-patroli.destroy', $data->id) }}" method="POST"
                                         class="inline form-hapus">
                                         @csrf
@@ -121,7 +128,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-4 py-4 text-center text-gray-500">
-                                Tidak ada data lokasi tersedia.
+                                Belum ada data lokasi patroli.
                             </td>
                         </tr>
                     @endforelse
@@ -164,16 +171,19 @@
 </x-app-layout>
 
 <script>
+    //Menampilkan QR Code
     function showQrModal(imageUrl, namaLokasi) {
         document.getElementById('qrModalImg').src = imageUrl;
         document.getElementById('qrModalNamaLokasi').textContent = namaLokasi;
         document.getElementById('qrModal').classList.remove('hidden');
     }
 
+    //Menutup Modal
     function closeModal() {
         document.getElementById('qrModal').classList.add('hidden');
     }
 
+    //Konfirmasi Hapus
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.btn-hapus').forEach(button => {
             button.addEventListener('click', function() {

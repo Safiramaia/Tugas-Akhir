@@ -1,8 +1,6 @@
 <x-app-layout :title="'Laporan Patroli'">
     <div class="container mx-auto px-4 py-6">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Laporan Patroli</h2>
-
-        {{-- FILTER & SEARCH --}}
         <div class="bg-white border border-gray-200 rounded-lg shadow-md mb-6 p-4">
             <form action="{{ route('kabid-dukbis.laporan-patroli') }}" method="GET"
                 class="flex flex-wrap gap-3 md:gap-4 items-end">
@@ -19,7 +17,6 @@
 
                 {{-- Search Input --}}
                 <div class="relative flex w-full md:w-96">
-                    {{-- Ikon Search --}}
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3">
                         <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -27,18 +24,13 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </div>
-
-                    {{-- Input --}}
                     <input type="text" name="search" id="search" value="{{ request('search') }}"
                         placeholder="Cari nama petugas, lokasi, tanggal..."
                         class="flex-grow border border-gray-300 rounded-l-md pl-10 pr-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
-
-                    {{-- Tombol --}}
                     <button type="submit"
                         class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 text-sm">Cari</button>
                 </div>
 
-                {{-- Reset Button --}}
                 @if (request('search') || request('status'))
                     <div>
                         <a href="{{ route('kabid-dukbis.laporan-patroli') }}"
@@ -50,7 +42,7 @@
             </form>
         </div>
 
-        {{-- FORM CETAK --}}
+        {{-- Form Cetak --}}
         <div class="bg-white border border-gray-200 rounded-lg shadow-md mb-6 p-4">
             <form action="{{ route('kabid-dukbis.cetak-laporan-patroli') }}" method="GET"
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-end">
@@ -94,7 +86,7 @@
             </form>
         </div>
 
-        {{-- TABEL LAPORAN --}}
+        {{-- Tabel Laporan Patroli --}}
         <div class="overflow-auto border border-gray-200 rounded-lg shadow-lg mb-4">
             <table class="min-w-full text-sm text-gray-700">
                 <thead class="bg-blue-200 text-gray-800 uppercase text-xs">
@@ -144,14 +136,14 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-4 text-center text-gray-500">Tidak ada data patroli
-                                tersedia.</td>
+                            <td colspan="8" class="px-4 py-4 text-center text-gray-500">Belum ada data laporan patroli</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
+        {{-- Pagination --}}
         <div class="flex flex-col sm:flex-row justify-between items-center bg-white px-2 py-3 text-sm text-gray-600">
             <div class="mb-2 sm:mb-0">
                 Menampilkan {{ $dataPatroli->firstItem() ?? 0 }} sampai {{ $dataPatroli->lastItem() ?? 0 }} dari
@@ -186,12 +178,14 @@
 </x-app-layout>
 
 <script>
+    //Menampilkan modal foto
     function showFotoModal(imageUrl, namaLokasi) {
         document.getElementById('fotoModalImg').src = imageUrl;
         document.getElementById('fotoModalNamaLokasi').textContent = namaLokasi;
         document.getElementById('fotoModal').classList.remove('hidden');
     }
 
+    //Menutup modal foto
     function closeModal() {
         document.getElementById('fotoModal').classList.add('hidden');
     }

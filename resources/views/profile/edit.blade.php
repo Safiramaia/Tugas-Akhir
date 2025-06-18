@@ -8,6 +8,7 @@
             @method('PUT')
 
             <div class="flex flex-col items-center mb-6">
+                {{-- Foto Profil --}}
                 <div class="w-40 h-40 rounded-full overflow-hidden shadow-md bg-gray-100">
                     @if (auth()->user()->foto && file_exists(public_path('storage/' . auth()->user()->foto)))
                         <img id="preview-image" src="{{ asset('storage/' . auth()->user()->foto) }}" alt="Foto Profil"
@@ -22,6 +23,7 @@
                     @endif
                 </div>
 
+                {{-- Pilih Foto --}}
                 <div class="mt-4 w-full md:w-1/2 text-center">
                     <label
                         class="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg cursor-pointer hover:bg-blue-700 transition duration-150">
@@ -29,11 +31,12 @@
                         <input type="file" name="foto" accept="image/*" class="hidden"
                             onchange="previewFoto(event)">
                     </label>
-                    <p class="text-xs text-gray-500 mt-2">Format gambar: JPG, PNG. Maksimal 2MB.</p>
+                    <p class="text-xs text-gray-500 mt-2">Format gambar : JPG, PNG. Maksimal 2MB.</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{-- Nama --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700">
                         Nama <span class="text-red-600">*</span>
@@ -44,16 +47,19 @@
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+                {{-- Email--}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
                     <input type="email" value="{{ auth()->user()->email }}" readonly
                         class="w-full mt-1 border border-gray-300 rounded-md p-2 text-gray-700 bg-gray-100 cursor-not-allowed">
                 </div>
+                {{-- Nomor Induk --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Nomor Induk</label>
                     <input type="text" value="{{ auth()->user()->nomor_induk }}" readonly
                         class="w-full mt-1 border border-gray-300 rounded-md p-2 text-gray-700 bg-gray-100 cursor-not-allowed">
                 </div>
+                {{-- No Telepon--}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700">
                         No Telepon <span class="text-red-600">*</span>
@@ -64,6 +70,7 @@
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+                {{-- Alamat --}}
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700">
                         Alamat <span class="text-red-600">*</span>
@@ -85,6 +92,7 @@
     </div>
 </x-app-layout>
 <script>
+    //Preview Foto Profil
     function previewFoto(event) {
         const input = event.target;
         const preview = document.getElementById('preview-image');

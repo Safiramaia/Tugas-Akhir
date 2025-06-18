@@ -1,15 +1,16 @@
 <x-app-layout :title="'Dashboard Petugas Security'">
- 
+    {{-- Notifikasi jika masih ada lokasi yang belum dipatroli --}}
     @if ($jumlahBelum > 0)
-        <div class="mt-6 mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded shadow">
+        <div class="mt-6 mb-2 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded shadow">
             <strong>Perhatian!</strong> Masih ada <strong>{{ $jumlahBelum }}</strong> lokasi yang belum dipatroli hari
             ini.
             Segera lakukan patroli untuk menyelesaikan tugas hari ini.
         </div>
     @endif
 
+    {{-- Notifikasi jika tidak ada jadwal patroli --}}
     @if ($totalLokasi == 0)
-        <div class="mt-6 mb-4 p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded shadow">
+        <div class="mt-6 mb-2 p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded shadow">
             <strong>Informasi :</strong> Hari ini kamu tidak memiliki jadwal patroli.
         </div>
     @endif
@@ -24,8 +25,9 @@
             {{-- Status Patroli --}}
             <div class="p-5 bg-white border rounded-xl shadow-sm">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2">Status Patroli Hari Ini</h2>
-
-                <div class="space-y-1 text-sm text-gray-700">
+                
+                {{-- Ringkasan jumlah lokasi --}}
+                <div class="space-y-1 text-sm text-gray-800">
                     <p class="flex space-x-1">
                         <span class="w-40 text-left">Total titik lokasi</span>
                         <span>:</span>
@@ -39,7 +41,7 @@
                     <p class="flex space-x-1">
                         <span class="w-40 text-left">Lokasi belum dipatroli</span>
                         <span>:</span>
-                        <strong class="text-red-600">{{ $jumlahBelum }}</strong>
+                        <strong class="text-red-700">{{ $jumlahBelum }}</strong>
                     </p>
                 </div>
 
@@ -48,7 +50,7 @@
                     <div class="relative h-4 bg-gray-200 rounded-full overflow-hidden">
                         <div class="h-full bg-blue-600 transition-all duration-300 ease-in-out"
                             style="width: {{ $persentase }}%"></div>
-                        <div class="absolute inset-0 flex items-center justify-center text-xs font-medium text-white">
+                        <div class="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">
                             {{ number_format($persentase, 1) }}%
                         </div>
                     </div>

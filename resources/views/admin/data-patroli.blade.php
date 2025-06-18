@@ -7,15 +7,15 @@
                 <form action="{{ route('admin.data-patroli') }}" method="GET"
                     class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
 
-                    <!-- Dropdown status dulu -->
+                    {{-- Dropdown filter status --}}
                     <select name="status"
                         class="border border-gray-300 rounded-lg p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500 w-full md:w-40">
                         <option value="" {{ request('status') == '' ? 'selected' : '' }}>Semua status</option>
                         <option value="aman" {{ request('status') == 'aman' ? 'selected' : '' }}>Aman</option>
                         <option value="darurat" {{ request('status') == 'darurat' ? 'selected' : '' }}>Darurat</option>
                     </select>
-
-                    <!-- Input dan tombol cari menyatu -->
+                    
+                    {{-- Search --}}
                     <div class="flex w-full md:w-96">
                         <div class="relative flex-grow">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -35,7 +35,6 @@
                         </button>
                     </div>
 
-                    <!-- Tombol reset jika ada filter -->
                     @if (request('search') || request('status'))
                         <a href="{{ route('admin.data-patroli') }}"
                             class="px-4 py-2 text-sm text-white bg-gray-400 hover:bg-gray-500 rounded-lg whitespace-nowrap">
@@ -93,7 +92,7 @@
                     @empty
                         <tr>
                             <td colspan="8" class="px-4 py-4 text-center text-gray-500">
-                                Tidak ada data patroli tersedia.
+                                Belum ada data patroli.
                             </td>
                         </tr>
                     @endforelse

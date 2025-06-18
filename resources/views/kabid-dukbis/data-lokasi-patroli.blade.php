@@ -4,6 +4,7 @@
 
         <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-md mb-4">
             <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-4 py-3 bg-white">
+                {{-- Search --}}
                 <form action="{{ route('kabid-dukbis.data-lokasi-patroli') }}" method="GET"
                     class="w-full md:w-1/2 flex flex-col md:flex-row items-start md:items-center gap-2">
                     <div class="relative flex w-full">
@@ -34,6 +35,7 @@
             </div>
         </div>
 
+        {{-- Tabel Data Lokasi Patroli --}}
         <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-lg mb-4">
             <table class="table-auto w-full text-sm text-gray-700">
                 <thead class="bg-blue-200 text-gray-800 uppercase text-xs">
@@ -67,7 +69,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-4 py-4 text-center text-gray-500">
-                                Tidak ada data lokasi tersedia.
+                                Belum ada data lokasi patroli.
                             </td>
                         </tr>
                     @endforelse
@@ -75,6 +77,7 @@
             </table>
         </div>
 
+        {{-- Pagination --}}
         <div class="flex justify-between items-center bg-white">
             <div class="text-sm text-gray-600">
                 Menampilkan {{ $lokasiPatroli->firstItem() ?? 0 }} sampai {{ $lokasiPatroli->lastItem() ?? 0 }} dari
@@ -108,12 +111,14 @@
     </div>
 </x-app-layout>
 <script>
+    //Menampilkan modal QR
     function showQrModal(imageUrl, namaLokasi) {
         document.getElementById('qrModalImg').src = imageUrl;
         document.getElementById('qrModalNamaLokasi').textContent = namaLokasi;
         document.getElementById('qrModal').classList.remove('hidden');
     }
 
+    //Menutup modal
     function closeModal() {
         document.getElementById('qrModal').classList.add('hidden');
     }

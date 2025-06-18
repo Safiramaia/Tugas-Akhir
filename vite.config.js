@@ -8,6 +8,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    //  server: {
+    //     host: true, // Ini penting untuk Railway
+    // },
     //     server: {
     //     host: "0.0.0.0",
     //     origin: 'http://192.168.100.13:5173', 

@@ -6,7 +6,8 @@
             <form action="{{ route('lokasi-patroli.update', $lokasiPatroli->id) }}" method="POST" class="space-y-6">
                 @csrf
                 @method('PUT')
-
+                
+                {{-- Nama Lokasi --}}
                 <div>
                     <label for="nama_lokasi" class="block text-sm font-medium text-gray-700">
                         Nama Lokasi <span class="text-red-600">*</span>
@@ -21,6 +22,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
+                        {{-- Latitude --}}
                         <label for="latitude" class="block text-sm font-medium text-gray-700">
                             Latitude <span class="text-red-600">*</span>
                         </label>
@@ -31,6 +33,8 @@
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    {{-- Longitude --}}
                     <div>
                         <label for="longitude" class="block text-sm font-medium text-gray-700">
                             Longitude <span class="text-red-600">*</span>
@@ -44,6 +48,7 @@
                     </div>
                 </div>
 
+                {{-- Map untuk memilih lokasi --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Lokasi Pada Map</label>
                     <div id="map" style="height: 300px;" class="rounded-lg border border-gray-300"></div>
@@ -77,11 +82,13 @@
 </style>
 
 <script>
+    // Inisialisasi peta dengan posisi latitude dan longitude dari data yang sudah ada
     let currentLat = {{ old('latitude', $lokasiPatroli->latitude) }};
     let currentLng = {{ old('longitude', $lokasiPatroli->longitude) }};
     let defaultPos = [-7.673995661475888, 109.06239516931424];
     let map = L.map('map').setView([currentLat, currentLng], 19);
 
+    //Layer peta OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 22,
         attribution: '&copy; OpenStreetMap'
@@ -92,7 +99,7 @@
         draggable: true
     }).addTo(map);
 
-    // Area batas kecil 
+    // Area polygon sebagai batas lokasi
     let area = L.polygon([
         [-7.674295, 109.062095],
         [-7.674295, 109.062695],
@@ -104,7 +111,7 @@
         fillOpacity: 0.2
     }).addTo(map);
 
-    // Label tetap di pusat
+    //Label tetap di pusat
     L.marker(defaultPos)
         .addTo(map)
         .bindTooltip("PT Sucofindo Cabang Cilacap", {
@@ -114,13 +121,13 @@
         })
         .openTooltip();
 
-    // Update koordinat saat marker digeser
+    //Update titik latitude dan longitude saat marker dipindah
     marker.on('move', function(e) {
         document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
         document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
     });
 
-    // Update marker saat map diklik dalam area
+    //Update marker saat map diklik dalam area
     map.on('click', function(e) {
         if (area.getBounds().contains(e.latlng)) {
             marker.setLatLng(e.latlng);

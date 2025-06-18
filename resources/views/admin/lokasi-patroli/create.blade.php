@@ -5,6 +5,7 @@
         <div class="max-w-full md:max-w-4xl bg-white p-6 rounded-lg shadow-md border border-gray-200">
             <form action="{{ route('lokasi-patroli.store') }}" method="POST" class="space-y-6">
                 @csrf
+                {{-- Nama Lokasi --}}
                 <div>
                     <label for="nama_lokasi" class="block text-sm font-medium text-gray-700">
                         Nama Lokasi <span class="text-red-600">*</span>
@@ -15,7 +16,9 @@
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Latitude --}}
                     <div>
                         <label for="latitude" class="block text-sm font-medium text-gray-700">
                             Latitude <span class="text-red-600">*</span>
@@ -26,6 +29,8 @@
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    {{-- Longitude --}}
                     <div>
                         <label for="longitude" class="block text-sm font-medium text-gray-700">
                             Longitude <span class="text-red-600">*</span>
@@ -37,6 +42,8 @@
                         @enderror
                     </div>
                 </div>
+
+                {{-- Map untuk memilih lokasi --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Lokasi Pada Map</label>
                     <div id="map" style="height: 300px;" class="rounded-lg border border-gray-300"></div>
@@ -71,67 +78,65 @@
 </style>
 
 <script>
-//Inisialisasi peta
-let defaultPos = [-7.673995661475888, 109.06239516931424]; 
-let map = L.map('map').setView(defaultPos, 19);
+    //Inisialisasi peta
+    let defaultPos = [-7.673995661475888, 109.06239516931424]; 
+    let map = L.map('map').setView(defaultPos, 19);
 
-// Tile layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 22,
-    attribution: '&copy; OpenStreetMap'
-}).addTo(map);
+    //Layer peta OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 22,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
 
-// Marker draggable
-let marker = L.marker(defaultPos, {
-    draggable: true
-}).addTo(map);
+    //Marker untuk lokasi
+    let marker = L.marker(defaultPos, {
+        draggable: true
+    }).addTo(map);
 
-// Area polygon sebagai batas lokasi, versi lebih kecil
-let area = L.polygon([
-    [-7.674295, 109.062095], 
-    [-7.674295, 109.062695], 
-    [-7.673695, 109.062695], 
-    [-7.673695, 109.062095] 
-], {
-    color: 'blue',
-    fillColor: '#cce5ff',
-    fillOpacity: 0.2
-}).addTo(map);
+    // Area polygon sebagai batas lokasi
+    let area = L.polygon([
+        [-7.674295, 109.062095], 
+        [-7.674295, 109.062695], 
+        [-7.673695, 109.062695], 
+        [-7.673695, 109.062095] 
+    ], {
+        color: 'blue',
+        fillColor: '#cce5ff',
+        fillOpacity: 0.2
+    }).addTo(map);
 
+    //Area Label
+    L.marker(defaultPos)
+        .addTo(map)
+        .bindTooltip("PT Sucofindo Cabang Cilacap", {
+            permanent: true,
+            direction: 'center',
+            className: 'map-label'
+        })
+        .openTooltip();
 
-
-// Label
-L.marker(defaultPos)
-    .addTo(map)
-    .bindTooltip("PT Sucofindo Cabang Cilacap", {
-        permanent: true,
-        direction: 'center',
-        className: 'map-label'
-    })
-    .openTooltip();
-
-// Update latlng saat marker digeser
-marker.on('move', function(e) {
-    document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
-    document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
-});
-
-// Klik di map
-map.on('click', function(e) {
-    if (area.getBounds().contains(e.latlng)) {
-        marker.setLatLng(e.latlng);
+    //Update titik latitude dan longitude saat marker dipindah
+    marker.on('move', function(e) {
         document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
         document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
-    } else {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Diluar Area',
-            text: 'Klik hanya diperbolehkan dalam area PT Sucofindo Cabang Cilacap!',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK'
-        });
-    }
-});
+    });
+
+    //Event click pada peta untuk memilih lokasi
+    map.on('click', function(e) {
+        if (area.getBounds().contains(e.latlng)) {
+            marker.setLatLng(e.latlng);
+            document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
+            document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Diluar Area',
+                text: 'Klik hanya diperbolehkan dalam area PT Sucofindo Cabang Cilacap!',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
 </script>
 
 

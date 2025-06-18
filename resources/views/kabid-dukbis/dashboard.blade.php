@@ -71,6 +71,7 @@
         </div>
     </div>
 </x-app-layout>
+
 <script>
     const ctx = document.getElementById('patroliChart').getContext('2d');
 

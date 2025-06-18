@@ -1,24 +1,20 @@
 <x-app-layout :title="'Data Jadwal Patroli'">
     <div class="container mx-auto p-4">
         <div class="mb-6">
-            <!-- Judul -->
             <h2 class="text-2xl font-bold text-gray-800 mb-4">
                 Jadwal Patroli Bulan {{ $currentMonth->translatedFormat('F Y') }}
             </h2>
+            <div class="flex flex-wrap justify-between items-center gap-2 ">
 
-            <!-- Container utama -->
-            <div class="flex flex-wrap justify-between items-center gap-2">
-
-                <!-- Filter bulan (sebelah kiri) -->
+                {{-- Filter bulan --}}
                 <form method="GET" action="{{ route('jadwal-patroli.index') }}">
                     <input type="month" name="month" value="{{ $currentMonth->format('Y-m') }}"
                         onchange="this.form.submit()"
                         class="border border-gray-300 rounded px-4 py-2 text-sm text-gray-700 shadow-sm w-full sm:w-auto">
                 </form>
 
-                <!-- Grup tombol di sebelah kanan -->
                 <div class="flex flex-wrap gap-2">
-                    <!-- Generate ulang -->
+                    {{-- Generate Ulang --}}
                     <form action="{{ route('jadwal-patroli.generate-ulang') }}" method="POST">
                         @csrf
                         <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
@@ -27,13 +23,12 @@
                             Generate Ulang
                         </button>
                     </form>
-
-                    <!-- Tambah jadwal -->
+                    {{-- Tambah Jadwal --}}
                     <button data-modal-target="tambahModal" data-modal-toggle="tambahModal"
                         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
                         Tambah Jadwal
                     </button>
-                    <!-- Modal Tambah Jadwal -->
+                    {{-- Modal Tambah Jadwal --}}
                     <div id="tambahModal" tabindex="-1" aria-hidden="true"
                         class="hidden fixed top-0 left-0 right-0 z-50 items-center justify-center w-full h-full bg-black bg-opacity-50">
                         <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
@@ -48,7 +43,7 @@
                                     </label>
                                     <select id="user_id" name="user_id" required
                                         class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
-                                        <option value="">--- Pilih Petugas ---</option>
+                                        <option value="">-- Pilih Petugas --</option>
                                         @foreach ($users as $user)
                                             <option value="{{ $user->id }}">{{ $user->nama }}</option>
                                         @endforeach
@@ -74,8 +69,7 @@
                             </form>
                         </div>
                     </div>
-
-                    <!-- Cetak -->
+                    {{-- Cetak --}}
                     <form action="{{ route('jadwal-patroli.cetak-jadwal') }}" method="GET">
                         <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
                         <button type="submit"
@@ -153,6 +147,7 @@
                         @if (!empty($jadwalHariIni))
                             <div class="absolute top-1 right-1 hidden group-hover:flex flex-col gap-1 z-20">
                                 <div class="flex space-x-1">
+                                    {{-- Edit Jadwal --}}
                                     <button data-modal-target="editModal{{ $jadwal->id }}"
                                         class="w-7 h-7 flex items-center justify-center text-white bg-yellow-400 hover:bg-yellow-500 font-medium rounded-lg"
                                         type="button" aria-label="Edit jadwal {{ $jadwal->user->nama }}">
@@ -164,8 +159,7 @@
                                                 clip-rule="evenodd" />
                                         </svg>
                                     </button>
-
-                                    <!-- Modal Edit -->
+                                    {{-- Modal Edit Jadwal --}}
                                     <div id="editModal{{ $jadwal->id }}" tabindex="-1"
                                         class="hidden fixed top-0 left-0 right-0 z-50 w-full h-full items-center justify-center bg-black bg-opacity-50">
                                         <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
@@ -206,7 +200,7 @@
                                             </form>
                                         </div>
                                     </div>
-
+                                    {{-- Hapus Jadwal --}}
                                     <form action="{{ route('jadwal-patroli.destroy', $jadwal->id) }}" method="POST"
                                         class="inline-block">
                                         @csrf
@@ -227,7 +221,6 @@
                         @endif
                     </div>
                 @endfor
-
                 {{-- Sel kosong setelah akhir bulan --}}
                 @php
                     $totalCells = $startDayOfWeek + $daysInMonth;
@@ -245,7 +238,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Modal toggle (buka & tutup)
+        //Untuk Membuka Modal
         document.querySelectorAll("[data-modal-target]").forEach(btn => {
             btn.addEventListener("click", () => {
                 const modalId = btn.dataset.modalTarget;
@@ -256,7 +249,8 @@
                 }
             });
         });
-
+        
+        //Untuk Menutup Modal
         document.querySelectorAll("[data-modal-hide]").forEach(btn => {
             btn.addEventListener("click", () => {
                 const modalId = btn.dataset.modalHide;
@@ -268,7 +262,7 @@
             });
         });
 
-        // Tutup modal saat klik di luar konten modal
+        //Untuk Menutup Modal Jika Klik di Luar Kontennya
         document.querySelectorAll('[id^="tambahModal"], [id^="editModal"]').forEach(modal => {
             modal.addEventListener('click', e => {
                 if (e.target === modal) {
@@ -278,6 +272,7 @@
             });
         });
 
+        //Konfirmasi Hapus
         document.querySelectorAll('.btn-hapus').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();

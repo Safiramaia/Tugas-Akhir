@@ -14,12 +14,20 @@ class PatroliController extends Controller
 {
     public function create(Request $request)
     {
+        //Mengecek apakah user sudah login
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
+        }
+
+        //Ambil lokasi berdasarkan query string ?lokasi=id.
         $lokasiId = $request->query('lokasi');
         $lokasiPatroli = LokasiPatroli::findOrFail($lokasiId);
 
+        //Mengambil ID user yang sedang login dan tanggal hari ini
         $userId = Auth::id();
         $today = now()->toDateString();
 
+        //Mengecek apakah petugas dijadwalkan patroli hari ini
         $jadwal = JadwalPatroli::where('user_id', $userId)
             ->where('tanggal', $today)
             ->exists();
@@ -34,6 +42,7 @@ class PatroliController extends Controller
 
     public function store(Request $request)
     {
+        //Mengecek apakah user sudah login
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
         }
@@ -47,6 +56,7 @@ class PatroliController extends Controller
             // 'longitude' => 'required|numeric',
         ]);
 
+        //Mengecek apakah patroli di lokasi ini sudah dilakukan hari ini
         $existingPatroli = Patroli::where('user_id', Auth::id())
             ->where('lokasi_id', $validated['lokasi_id'])
             ->where('tanggal_patroli', now()->toDateString())
@@ -58,7 +68,7 @@ class PatroliController extends Controller
                 ->with('error', 'Patroli di lokasi ini sudah dilakukan hari ini.');
         }
 
-        $lokasi = LokasiPatroli::findOrFail($validated['lokasi_id']);
+        // $lokasi = LokasiPatroli::findOrFail($validated['lokasi_id']);
 
         // // Hitung jarak menggunakan rumus Haversine (dalam km)
         // $distance = $this->hitungJarakHaversine(
@@ -130,7 +140,7 @@ class PatroliController extends Controller
             return;
         }
 
-        // Konversi nomor telepon admin
+        //Mengubah nomor telepon
         $number = preg_replace('/[^0-9]/', '', $admin->no_telepon);
         $number = preg_replace('/^08/', '628', $number);
 

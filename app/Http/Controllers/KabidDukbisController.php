@@ -17,6 +17,7 @@ class KabidDukbisController extends Controller
 {
     public function dashboard()
     {
+        // Menghitung jumlah petugas, lokasi patroli, dan laporan patroli
         $jumlahPetugas = User::where('role', 'petugas_security')->count();
         $jumlahLokasiPatroli = LokasiPatroli::count();
         $jumlahLaporanPatroli = Patroli::count();
@@ -67,6 +68,7 @@ class KabidDukbisController extends Controller
         ));
     }
 
+    // Menampilkan data petugas security
     public function dataPetugas(Request $request)
     {
         $search = $request->input('search');
@@ -77,7 +79,7 @@ class KabidDukbisController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->where('nama', 'like', '%' . $search . '%')
                         ->orWhere('email', 'like', '%' . $search . '%')
-                        ->orWhere('nip', 'like', '%' . $search . '%')
+                        ->orWhere('nomor_induk', 'like', '%' . $search . '%')
                         ->orWhere('no_telepon', 'like', '%' . $search . '%');
                 });
             })
@@ -88,6 +90,7 @@ class KabidDukbisController extends Controller
         return view('kabid-dukbis.data-petugas-security', compact('users', 'search'));
     }
 
+    // Menampilkan data lokasi patroli
     public function dataLokasiPatroli(Request $request)
     {
         $search = $request->input('search');
@@ -103,6 +106,7 @@ class KabidDukbisController extends Controller
         return view('kabid-dukbis.data-lokasi-patroli', compact('lokasiPatroli', 'search'));
     }
 
+    // Menampilkan laporan patroli
     public function laporanPatroli(Request $request)
     {
         $search = $request->input('search');
@@ -132,23 +136,35 @@ class KabidDukbisController extends Controller
 
     public function cetakLaporan(Request $request)
     {
-        // Validasi
         $validated = Validator::make($request->all(), [
             'tanggal_mulai' => ['required', 'date'],
-            'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
+            'tanggal_selesai' => ['required', 'date'],
+            'status' => ['nullable', 'in:aman,darurat'],
+        ], [
+            'tanggal_mulai.required' => 'Tanggal mulai wajib diisi.',
+            'tanggal_mulai.date' => 'Tanggal mulai harus berupa tanggal yang valid.',
+            'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
+            'tanggal_selesai.date' => 'Tanggal selesai harus berupa tanggal yang valid.',
+            'status.in' => 'Status yang dipilih tidak valid.',
         ]);
 
-        // Validasi tambahan
+        // Validasi tambahan: beda bulan/tahun, rentang lebih dari 1 bulan, dan urutan tanggal
         $validated->after(function ($validator) use ($request) {
-            $start = Carbon::parse($request->tanggal_mulai);
-            $end = Carbon::parse($request->tanggal_selesai);
+            if ($request->filled(['tanggal_mulai', 'tanggal_selesai'])) {
+                $start = Carbon::parse($request->tanggal_mulai);
+                $end = Carbon::parse($request->tanggal_selesai);
 
-            if ($start->format('Y-m') !== $end->format('Y-m')) {
-                $validator->errors()->add('tanggal_selesai', 'Tanggal mulai dan selesai harus dalam bulan & tahun yang sama.');
-            }
+                if ($start->greaterThan($end)) {
+                    $validator->errors()->add('tanggal_mulai', 'Tanggal mulai tidak boleh lebih besar dari tanggal selesai.');
+                }
 
-            if ($start->diffInMonths($end) > 1) {
-                $validator->errors()->add('tanggal_selesai', 'Rentang tanggal tidak boleh lebih dari satu bulan.');
+                if ($start->format('Y-m') !== $end->format('Y-m')) {
+                    $validator->errors()->add('tanggal_mulai', 'Tanggal mulai dan selesai harus dalam bulan dan tahun yang sama.');
+                }
+
+                if ($start->diffInMonths($end) > 1) {
+                    $validator->errors()->add('tanggal_mulai', 'Rentang tanggal tidak boleh lebih dari satu bulan.');
+                }
             }
         });
 
@@ -156,26 +172,29 @@ class KabidDukbisController extends Controller
             return back()->withInput()->with('error', $validated->errors()->first());
         }
 
+        //Mengambil data dari request
         $startDate = $request->tanggal_mulai;
         $endDate = $request->tanggal_selesai;
-        $status = $request->status; // ← tambahkan ini
+        $status = $request->status;
 
-        // Query data patroli
+        //Mengambil data patroli berdasarkan rentang tanggal dan status
         $dataPatroli = Patroli::with(['user', 'lokasiPatroli'])
             ->whereBetween('tanggal_patroli', [$startDate, $endDate])
-            ->when($status, function ($query) use ($status) {
-                $query->where('status', $status);
-            })
+            ->when($status, fn($query) => $query->where('status', $status))
             ->get();
 
         if ($dataPatroli->isEmpty()) {
-            return back()->with('error', 'Data patroli tidak ditemukan dalam rentang dan filter status tersebut.');
+            return back()->with('error', 'Tidak ditemukan data patroli pada rentang tanggal dan status yang dipilih.');
         }
 
+        //Membuat QR Code
         $user = Auth::user();
-        $qrText = "Laporan Patroli\nDisahkan oleh: " . ($user->nama ?? '-') . "\nNIP: " . ($user->nip ?? '-') . "\nTanggal: " . now()->translatedFormat('d F Y');
+        $qrText = "Laporan Patroli\nDisahkan oleh : " . ($user->nama ?? '-') .
+          "\nNomor Induk : " . ($user->nomor_induk ?? '-') .
+          "\nTanggal : " . now()->translatedFormat('d F Y');
         $qrCode = base64_encode(QrCode::format('png')->size(150)->generate($qrText));
 
+        //Membuat PDF
         $pdf = Pdf::loadView('kabid-dukbis.cetak-laporan-patroli', [
             'data' => $dataPatroli,
             'startDate' => $startDate,

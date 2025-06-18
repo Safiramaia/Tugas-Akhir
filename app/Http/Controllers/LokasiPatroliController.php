@@ -27,6 +27,7 @@ class LokasiPatroliController extends Controller
     //Generate QR Code untuk lokasi patroli
     private function generateQrCode(LokasiPatroli $lokasi): void
     {
+        //URL dalam QR Code yang mengarahkan ke form patroli
         $url = route('patroli.create', ['lokasi' => $lokasi->id]);
         $qrCodeImage = QrCode::format('png')
             ->size(300)

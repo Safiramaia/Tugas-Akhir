@@ -14,6 +14,7 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
+        // Menghitung jumlah pengguna, lokasi patroli, dan patroli
         $jumlahPengguna = User::count();
         $jumlahLokasiPatroli = LokasiPatroli::count();
         $jumlahPatroli = Patroli::count();
@@ -24,7 +25,7 @@ class AdminController extends Controller
 
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $harianLabels[] = Str::title($date->isoFormat('dddd')); // Senin, Selasa, dll.
+            $harianLabels[] = Str::title($date->isoFormat('dddd')); 
             $harianData[] = Patroli::whereDate('tanggal_patroli', $date)->count();
         }
 
@@ -51,6 +52,7 @@ class AdminController extends Controller
                 ->count();
         }
 
+        // Menghitung status patroli
         $statusPatroli = Patroli::select('status', DB::raw('count(*) as total'))
             ->whereIn('status', ['aman', 'darurat'])
             ->groupBy('status')
@@ -90,6 +92,7 @@ class AdminController extends Controller
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);
             })
+            // Mengurutkan berdasarkan tanggal patroli terbaru
             ->orderBy('tanggal_patroli', 'desc')
             ->paginate(10)
             ->withQueryString();

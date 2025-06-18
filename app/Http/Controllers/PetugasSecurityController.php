@@ -14,15 +14,16 @@ class PetugasSecurityController extends Controller
 {
     public function dashboard()
     {
+        //Mengambil ID user yang sedang login dan tanggal hari ini
         $userId = Auth::user()->id;
         $today = Carbon::today()->toDateString();
 
-        // Cek apakah user ini dijadwalkan hari ini
+        //Mengecek apakah petugas dijadwalkan hari ini
         $dijadwalkan = JadwalPatroli::where('user_id', $userId)
             ->whereDate('tanggal', $today)
             ->exists();
 
-        // Jika tidak dijadwalkan, jangan munculkan reminder dan data patroli
+        //Jika tidak dijadwalkan, dashboard kosong
         if (!$dijadwalkan) {
             return view('petugas-security.dashboard', [
                 'totalLokasi' => 0,
@@ -34,21 +35,31 @@ class PetugasSecurityController extends Controller
             ]);
         }
 
-        // Jika dijadwalkan, lanjutkan seperti biasa
+        //Menghitung total lokasi patroli
         $totalLokasi = LokasiPatroli::count();
 
+        //Mengambil data patroli hari ini untuk petugas yang sedang login
         $patroliHariIni = Patroli::with('lokasiPatroli')
             ->where('user_id', $userId)
             ->whereDate('tanggal_patroli', $today)
             ->get();
 
+        //Mengambil ID lokasi yang sudah dipatroli hari ini
         $lokasiDipatroliIds = $patroliHariIni->pluck('lokasi_id')->unique();
 
+        //Menghitung jumlah lokasi yang sudah dipatroli
         $jumlahSelesai = $lokasiDipatroliIds->count();
+
+        //Menghitung jumlah lokasi yang belum dipatroli
         $jumlahBelum = $totalLokasi - $jumlahSelesai;
+
+        //Menghitung persentase lokasi yang sudah dipatroli
         $persentase = $totalLokasi > 0 ? ($jumlahSelesai / $totalLokasi) * 100 : 0;
 
+        //Mengambil lokasi yang belum dipatroli
         $belumDipatroli = LokasiPatroli::whereNotIn('id', $lokasiDipatroliIds)->get();
+
+        //Mengambil 5 aktivitas patroli terakhir hari ini
         $aktivitasTerakhir = $patroliHariIni->sortByDesc('waktu_patroli')->take(5);
 
         return view('petugas-security.dashboard', compact(
@@ -63,18 +74,20 @@ class PetugasSecurityController extends Controller
 
     public function scanQr()
     {
+        //Mengambil ID user yang sedang login dan tanggal hari ini
         $userId = Auth::id();
         $today = now()->toDateString();
 
+        //Mengecek apakah petugas dijadwalkan hari ini
         $jadwalHariIni = JadwalPatroli::where('user_id', $userId)
             ->where('tanggal', $today)
             ->exists();
 
+        // Jika tidak dijadwalkan, redirect ke dashboard dengan pesan error
         if (!$jadwalHariIni) {
             return redirect()->route('petugas-security.dashboard')
                 ->with('error', 'Anda tidak dijadwalkan patroli hari ini.');
         }
-
         return view('petugas-security.scan-qr');
     }
 
@@ -93,9 +106,11 @@ class PetugasSecurityController extends Controller
                         ->orWhere('tanggal_patroli', 'like', '%' . $search . '%');
                 });
             })
+            // Filter berdasarkan status jika ada
             ->when($status, function ($query) use ($status) {
                 $query->where('status', $status);
             })
+            // Mengurutkan berdasarkan tanggal patroli terbaru
             ->orderByDesc('tanggal_patroli')
             ->paginate(5)
             ->withQueryString();
