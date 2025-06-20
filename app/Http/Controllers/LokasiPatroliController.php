@@ -60,7 +60,7 @@ class LokasiPatroliController extends Controller
         $this->generateQrCode($lokasi);
 
         return redirect()->route('lokasi-patroli.index')
-            ->with('success', 'Lokasi berhasil ditambahkan');
+            ->with('success', 'Lokasi Patroli berhasil ditambahkan');
     }
 
     public function edit(LokasiPatroli $lokasiPatroli)

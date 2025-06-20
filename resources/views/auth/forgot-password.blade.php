@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div
-        class="w-full max-w-sm mx-auto bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700 mt-10">
+        class="w-full max-w-sm mx-auto bg-gray-50 rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700 mt-10">
         <div class="p-6 sm:p-8 space-y-6">
 
             <!-- Logo dan Judul -->

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_lokasi', 40);
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->string('qr_code');
+            $table->string('qr_code')->nullable();
             $table->timestamps();
         });
     }

@@ -67,7 +67,7 @@ class JadwalPatroliController extends Controller
                     ['tanggal' => $tanggal->format('Y-m-d')],
                     ['user_id' => $users[$lastUserIndex % $users->count()]->id]
                 );
-                $lastUserIndex++; 
+                $lastUserIndex++;
             }
         }
     }
@@ -75,26 +75,26 @@ class JadwalPatroliController extends Controller
     // Fungsi untuk generate ulang jadwal patroli dari tanggal tertentu
     public function generateUlang(Request $request)
     {
-        // Ambil parameter bulan dan tanggal mulai dari request
+        //Mengambil parameter bulan dan tanggal mulai dari request
         $monthParam = $request->input('month');
         $startDateInput = $request->input('start_date');
 
-        // Jika tidak ada, gunakan bulan dan tanggal saat ini
+        //Jika tidak ada, gunakan bulan dan tanggal saat ini
         $currentMonth = $monthParam ? Carbon::parse($monthParam . '-01') : Carbon::now();
         $startDate = $startDateInput ? Carbon::parse($startDateInput) : $currentMonth->copy()->startOfMonth();
 
-        // Cegah proses jika admin mencoba generate ulang untuk bulan yang sudah lewat
+        //Mencegah proses jika admin mencoba generate ulang untuk bulan yang sudah lewat
         if ($currentMonth->lt(Carbon::now()->startOfMonth())) {
             return redirect()->route('jadwal-patroli.index', ['month' => $currentMonth->format('Y-m')])
                 ->with('error', 'Tidak dapat generate ulang jadwal untuk bulan yang sudah lewat.');
         }
 
-        // Hapus jadwal patroli dari tanggal mulai hingga akhir bulan
+        //Menghapus jadwal patroli dari tanggal mulai hingga akhir bulan
         JadwalPatroli::whereDate('tanggal', '>=', $startDate->format('Y-m-d'))
             ->whereDate('tanggal', '<=', $currentMonth->copy()->endOfMonth()->format('Y-m-d'))
             ->delete();
 
-        // Buat ulang jadwal patroli mulai dari tanggal yang ditentukan
+        //Membuat ulang jadwal patroli mulai dari tanggal yang ditentukan
         $this->generateJadwalOtomatis($currentMonth, false, $startDate);
 
         return redirect()->route('jadwal-patroli.index', ['month' => $currentMonth->format('Y-m')])
@@ -108,9 +108,18 @@ class JadwalPatroliController extends Controller
             'tanggal' => 'required|date',
         ]);
 
-        // Cek apakah tanggal sudah punya jadwal
-        $exists = JadwalPatroli::whereDate('tanggal', $request->tanggal)->exists();
+        // Ambil bulan dari tanggal yang dimasukkan
+        $currentMonth = Carbon::parse($request->tanggal)->startOfMonth();
+        
+        // Mencegah input jadwal jika bulan yang dipilih sudah lewat
+        if ($currentMonth->lt(Carbon::now()->startOfMonth())) {
+            return redirect()->route('jadwal-patroli.index', ['month' => $currentMonth->format('Y-m')])
+                ->with('error', 'Tidak dapat menambahkan jadwal untuk bulan yang sudah lewat.')
+                ->withInput();
+        }
 
+        // Mengecek apakah tanggal sudah memiliki jadwal
+        $exists = JadwalPatroli::whereDate('tanggal', $request->tanggal)->exists();
         if ($exists) {
             return redirect()->route('jadwal-patroli.index')
                 ->with('error', 'Tanggal tersebut sudah memiliki petugas yang dijadwalkan.')

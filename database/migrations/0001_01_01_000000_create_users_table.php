@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('nomor_induk',12)->unique();
             $table->string('no_telepon', 15);
             $table->text('alamat');
-            $table->string('foto');
+            $table->string('foto')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

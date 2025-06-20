@@ -48,9 +48,9 @@
                 {{-- Progress bar --}}
                 <div class="mt-4">
                     <div class="relative h-4 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-600 transition-all duration-300 ease-in-out"
+                        <div class="h-full bg-blue-500 transition-all duration-300 ease-in-out"
                             style="width: {{ $persentase }}%"></div>
-                        <div class="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">
+                        <div class="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-800">
                             {{ number_format($persentase, 1) }}%
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                 <ul class="space-y-3 text-sm text-gray-700">
                     @forelse ($aktivitasTerakhir as $patroli)
                         <li class="flex items-start space-x-2">
-                            <svg class="w-5 h-5 mr-2 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                            <svg class="w-5 h-5 mr-2 text-green-600 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 448 512" fill="currentColor">
                                 <path
                                     d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" />
