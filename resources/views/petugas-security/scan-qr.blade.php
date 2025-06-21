@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Menjalankan scanner saat halaman dibuka
     html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
         .catch(err => {
-            alert("Gagal memulai kamera: " + err);
+            alert("Gagal memulai kamera : " + err);
         });
 });
 </script>
