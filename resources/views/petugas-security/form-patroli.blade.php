@@ -172,7 +172,6 @@
     });
 
     retakePhotoBtn.addEventListener('click', () => {
-        // Kembali ke mode kamera untuk ambil ulang foto
         startCamera();
     });
 

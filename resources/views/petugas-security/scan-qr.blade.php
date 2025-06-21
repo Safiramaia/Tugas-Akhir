@@ -15,37 +15,48 @@
 {{-- Memuat library HTML5 QR Code --}}
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const resultContainer = document.getElementById('result');
-    const html5QrCode = new Html5Qrcode("reader");
+    document.addEventListener("DOMContentLoaded", function () {
+        const resultContainer = document.getElementById('result');
+        const html5QrCode = new Html5Qrcode("reader");
 
-    //Konfigurasi scanner dengan kamera belakang
-    const config = {
-        fps: 10,
-        qrbox: { width: 300, height: 300 },
-        videoConstraints: {
-            facingMode: "environment"
-        }
-    };
-
-    // Callback saat QR berhasil discan
-    function onScanSuccess(decodedText, decodedResult) {
-        html5QrCode.stop().then(() => {
-            resultContainer.innerText = `QR Berhasil: ${decodedText}`;
-
-            // Jika QR berisi URL, langsung diarahkan ke URL tersebut
-            if (decodedText.startsWith('http://') || decodedText.startsWith('https://')) {
-                window.location.href = decodedText;
-            } else {
-                alert('QR code tidak valid!');
+        const config = {
+            fps: 10,
+            qrbox: { width: 300, height: 300 },
+            videoConstraints: {
+                facingMode: "environment"
             }
-        });
-    }
+        };
 
-    // Menjalankan scanner saat halaman dibuka
-    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
-        .catch(err => {
-            alert("Gagal memulai kamera : " + err);
-        });
-});
+        let hasScanned = false;
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (hasScanned) return;
+            hasScanned = true;
+
+            html5QrCode.stop().then(() => {
+                resultContainer.innerText = `QR Berhasil: ${decodedText}`;
+
+                // Jika QR mengandung URL, arahkan ke URL
+                if (decodedText.startsWith('http://') || decodedText.startsWith('https://')) {
+                    window.location.href = decodedText;
+                } else {
+                    alert('QR code tidak valid!');
+                }
+            }).catch(err => {
+                console.error("Gagal menghentikan scanner: ", err);
+            });
+        }
+
+        // Pastikan user memberi izin kamera terlebih dahulu
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(() => {
+                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+                    .catch(err => {
+                        alert("Gagal memulai kamera: " + err);
+                    });
+            })
+            .catch(err => {
+                alert("Akses kamera ditolak atau tidak tersedia : " + err.message);
+            });
+    });
 </script>
