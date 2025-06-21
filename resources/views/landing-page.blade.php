@@ -21,7 +21,7 @@
 
             <!-- Logo -->
             <div class="flex items-center space-x-3">
-                <img class="h-auto w-20" src="{{ asset('storage/logo/sucofindo.png') }}" alt="Logo SUCOFINDO" />
+                <img class="h-auto w-20" src="{{ asset('assets/sucofindo.png') }}" alt="Logo SUCOFINDO" />
             </div>
 
             <!-- Tombol login + hamburger di mobile -->
@@ -108,7 +108,7 @@
             </div>
             <!-- Logo Image -->
             <div class="md:w-1/2 flex justify-center">
-                <img class="w-64 h-auto" src="{{ asset('storage/logo/logo-shield.png') }}" alt="Logo SIM PATROLI" />
+                <img class="w-64 h-auto" src="{{ asset('assets/logo-shield.png') }}" alt="Logo SIM PATROLI" />
             </div>
         </div>
     </section>
@@ -118,7 +118,7 @@
         <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <!-- Gambar -->
             <div class="flex justify-center">
-                <img src="{{ asset('storage/logo/gedung-sucofindo.jpg') }}" alt="Gedung SUCOFINDO"
+                <img src="{{ asset('assets/gedung-sucofindo.jpg') }}" alt="Gedung SUCOFINDO"
                     class="rounded-xl shadow-lg w-full max-w-2xl h-[360px] object-cover">
             </div>
 

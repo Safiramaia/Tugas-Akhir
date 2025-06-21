@@ -20,7 +20,7 @@
                 <span class="sr-only">Toggle sidebar</span>
             </button>
             <a href="" class="flex items-center justify-between mr-4">
-                <img src="{{ asset('storage/logo/sucofindo.png') }}" class="mr-2 h-11" alt="Logo" />
+                <img src="{{ asset('assets/sucofindo.png') }}" class="mr-2 h-11" alt="Logo" />
                 <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">SIM PATROLI</span>
             </a>
         </div>
