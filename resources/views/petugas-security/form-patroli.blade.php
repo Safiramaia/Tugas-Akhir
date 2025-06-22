@@ -60,11 +60,11 @@
                             Ambil Foto <span class="text-red-600">*</span>
                         </label>
 
-                        <div class="w-full border rounded-lg p-4 bg-gray-50 flex flex-col items-center">
+                        <div class="w-full border border-gray-200 rounded-lg p-4 bg-gray-50 flex flex-col items-center">
                             <video id="video" class="w-full rounded border" autoplay
                                 style="aspect-ratio: 16 / 9; object-fit: cover;"></video>
 
-                            <img id="preview" class="w-full rounded border hidden mt-2"
+                            <img id="preview" class="w-full rounded border border-gray-200 hidden mt-2"
                                 style="aspect-ratio: 16 / 9; object-fit: cover;" />
 
                             <p id="infoText" class="text-center text-gray-600 mt-2 hidden">
