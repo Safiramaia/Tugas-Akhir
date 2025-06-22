@@ -46,7 +46,7 @@
         </div>
 
         {{-- Tabel Riwayat Patroli --}}
-        <div class="overflow-x-auto border rounded-lg shadow-lg mb-4">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-lg mb-4">
             <table class="table-auto w-full text-sm text-gray-700">
                 <thead class="bg-blue-200 text-gray-800 uppercase text-xs">
                     <tr class="text-center">

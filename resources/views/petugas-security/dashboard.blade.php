@@ -23,7 +23,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {{-- Status Patroli --}}
-            <div class="p-5 bg-white border rounded-xl shadow-sm">
+            <div class="p-5 bg-white border border-gray-200 rounded-xl shadow-sm">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2">Status Patroli Hari Ini</h2>
                 
                 {{-- Ringkasan jumlah lokasi --}}
@@ -58,7 +58,7 @@
             </div>
 
             {{-- Aktivitas Terakhir --}}
-            <div class="p-5 bg-white border rounded-xl shadow-sm max-h-64 overflow-y-auto">
+            <div class="p-5 bg-white borderborder-gray-200 rounded-xl shadow-sm max-h-64 overflow-y-auto">
                 <h2 class="text-lg font-semibold text-gray-800 mb-3">Aktivitas Terakhir</h2>
                 <ul class="space-y-3 text-sm text-gray-700">
                     @forelse ($aktivitasTerakhir as $patroli)
@@ -85,7 +85,7 @@
         {{-- Tabel Lokasi Belum Dipatroli --}}
         <div>
             <h2 class="text-xl font-semibold text-gray-800 mb-4"> Daftar Lokasi Belum Dipatroli</h2>
-            <div class="overflow-x-auto bg-white border rounded-xl shadow-sm">
+            <div class="overflow-x-auto bg-white borderborder-gray-200 rounded-xl shadow-sm">
                 <table class="w-full text-sm text-left text-gray-700">
                     <thead class="bg-blue-100 text-xs text-gray-700 uppercase">
                         <tr class="text-center">

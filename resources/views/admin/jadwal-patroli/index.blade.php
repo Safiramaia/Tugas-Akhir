@@ -4,28 +4,30 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-4">
                 Jadwal Patroli Bulan {{ $currentMonth->translatedFormat('F Y') }}
             </h2>
-            <div class="flex flex-wrap justify-between items-center gap-2 ">
+            <div
+                class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 border border-gray-200 rounded-lg shadow-md p-4">
 
-                {{-- Filter bulan --}}
-                <form method="GET" action="{{ route('jadwal-patroli.index') }}">
+                {{-- Filter Bulan --}}
+                <form method="GET" action="{{ route('jadwal-patroli.index') }}" class="w-full sm:w-auto">
                     <input type="month" name="month" value="{{ $currentMonth->format('Y-m') }}"
                         onchange="this.form.submit()"
-                        class="border border-gray-300 rounded px-4 py-2 text-sm text-gray-700 shadow-sm w-full sm:w-auto">
+                        class="border border-gray-300 rounded px-4 py-2 text-sm text-gray-700 shadow-sm w-full min-w-[150px] sm:min-w-[180px]">
                 </form>
 
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     {{-- Generate Ulang --}}
-                    <form action="{{ route('jadwal-patroli.generate-ulang') }}" method="POST">
+                    <form action="{{ route('jadwal-patroli.generate-ulang') }}" method="POST" class="w-full sm:w-auto">
                         @csrf
                         <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
                         <button type="submit"
-                            class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
+                            class="w-full min-w-[150px] sm:min-w-[180px] whitespace-nowrap px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold text-center">
                             Generate Ulang
                         </button>
                     </form>
+
                     {{-- Tambah Jadwal --}}
                     <button data-modal-target="tambahModal" data-modal-toggle="tambahModal"
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
+                        class="w-full min-w-[150px] sm:min-w-[180px] whitespace-nowrap px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold text-center">
                         Tambah Jadwal
                     </button>
                     {{-- Modal Tambah Jadwal --}}
@@ -69,11 +71,12 @@
                             </form>
                         </div>
                     </div>
+
                     {{-- Cetak --}}
-                    <form action="{{ route('jadwal-patroli.cetak-jadwal') }}" method="GET">
+                    <form action="{{ route('jadwal-patroli.cetak-jadwal') }}" method="GET" class="w-full sm:w-auto">
                         <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
                         <button type="submit"
-                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold w-full sm:w-auto">
+                            class="inline-flex items-center justify-center w-full min-w-[150px] sm:min-w-[180px] whitespace-nowrap px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold text-center">
                             <svg class="w-4 h-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
                                 <path
@@ -171,7 +174,7 @@
                                                 @csrf
                                                 @method('PUT')
                                                 <div>
-                                                    
+
                                                     <label for="user_id_edit_{{ $jadwal->id }}"
                                                         class="block mb-1 text-sm font-medium text-gray-700">Petugas</label>
                                                     <select id="user_id_edit_{{ $jadwal->id }}" name="user_id"
@@ -249,7 +252,7 @@
                 }
             });
         });
-        
+
         //Untuk Menutup Modal
         document.querySelectorAll("[data-modal-hide]").forEach(btn => {
             btn.addEventListener("click", () => {

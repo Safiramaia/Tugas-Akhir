@@ -3,41 +3,41 @@
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Laporan Patroli</h2>
         <div class="bg-white border border-gray-200 rounded-lg shadow-md mb-6 p-4">
             <form action="{{ route('kabid-dukbis.laporan-patroli') }}" method="GET"
-                class="flex flex-wrap gap-3 md:gap-4 items-end">
+                class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
 
-                {{-- Dropdown Status --}}
-                <div>
-                    <select name="status" id="status"
-                        class="border border-gray-300 rounded-lg p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500 w-full md:w-40">
-                        <option value="">Semua status</option>
-                        <option value="aman" {{ request('status') == 'aman' ? 'selected' : '' }}>Aman</option>
-                        <option value="darurat" {{ request('status') == 'darurat' ? 'selected' : '' }}>Darurat</option>
-                    </select>
-                </div>
+                {{-- Status Filter --}}
+                <select name="status"
+                    class="border border-gray-300 rounded-lg p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500 w-full md:w-40">
+                    <option value="" {{ request('status') == '' ? 'selected' : '' }}>Semua status</option>
+                    <option value="aman" {{ request('status') == 'aman' ? 'selected' : '' }}>Aman</option>
+                    <option value="darurat" {{ request('status') == 'darurat' ? 'selected' : '' }}>Darurat</option>
+                </select>
 
-                {{-- Search Input --}}
-                <div class="relative flex w-full md:w-96">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd" />
-                        </svg>
+                {{-- Search --}}
+                <div class="flex w-full md:w-96">
+                    <div class="relative flex-grow">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari lokasi atau tanggal..." autocomplete="off"
+                            class="block w-full p-2 pl-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500" />
                     </div>
-                    <input type="text" name="search" id="search" value="{{ request('search') }}"
-                        placeholder="Cari nama petugas, lokasi, tanggal..."
-                        class="flex-grow border border-gray-300 rounded-l-md pl-10 pr-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
                     <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 text-sm">Cari</button>
+                        class="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-r-lg border-l-0 border border-blue-600">
+                        Cari
+                    </button>
                 </div>
 
                 @if (request('search') || request('status'))
-                    <div>
-                        <a href="{{ route('kabid-dukbis.laporan-patroli') }}"
-                            class="inline-block text-center px-4 py-2 text-sm text-white bg-gray-500 hover:bg-gray-600 rounded-md">
-                            Kembali
-                        </a>
-                    </div>
+                    <a href="{{ route('petugas-security.riwayat-patroli') }}"
+                        class="px-4 py-2 text-sm text-white bg-gray-400 hover:bg-gray-500 rounded-lg whitespace-nowrap">
+                        Kembali
+                    </a>
                 @endif
             </form>
         </div>
@@ -136,7 +136,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-4 text-center text-gray-500">Belum ada data laporan patroli</td>
+                            <td colspan="8" class="px-4 py-4 text-center text-gray-500">Belum ada data laporan
+                                patroli</td>
                         </tr>
                     @endforelse
                 </tbody>
