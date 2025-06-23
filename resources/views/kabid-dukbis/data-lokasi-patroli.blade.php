@@ -89,11 +89,9 @@
         </div>
         
         {{-- Modal Preview QR --}}
-        <div id="qrModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-            <div class="flex items-center justify-center min-h-screen px-4 text-center">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75" onclick="closeModal()"></div>
-
-                <div class="relative bg-white rounded-lg shadow-xl transform transition-all sm:max-w-md w-full z-10">
+        <div id="qrModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50">
+            <div class="flex items-center justify-center min-h-screen p-4 sm:p-6">
+                <div class="relative w-full max-w-sm bg-white rounded-lg shadow-xl z-10">
                     <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -101,9 +99,10 @@
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <div class="p-6 text-center">
-                        <h3 id="qrModalNamaLokasi" class="text-lg font-semibold mb-4 text-gray-800"></h3>
-                        <img id="qrModalImg" src="" alt="QR Preview" class="mx-auto max-w-full h-auto">
+                    <div class="p-4 sm:p-6 text-center">
+                        <h3 id="qrModalNamaLokasi" class="text-base sm:text-lg font-semibold mb-4 text-gray-800"></h3>
+                        <img id="qrModalImg" src="" alt="QR Preview"
+                            class="mx-auto w-full max-w-[180px] sm:max-w-[220px] h-auto rounded-lg shadow-md border border-gray-200">
                     </div>
                 </div>
             </div>

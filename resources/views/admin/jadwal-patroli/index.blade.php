@@ -90,8 +90,8 @@
         </div>
 
         {{-- Kalender --}}
-        <div class="w-full overflow-auto border border-gray-200 rounded-lg shadow-lg">
-            <div class="w-[800px] sm:w-full grid grid-cols-7 gap-px text-center text-sm select-none">
+        <div class="w-full overflow-x-auto border border-gray-200 rounded-lg shadow-lg">
+            <div class="min-w-[700px] grid grid-cols-7 gap-px text-center text-sm select-none">
                 {{-- Header Hari --}}
                 @foreach (['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'] as $day)
                     <div class="font-semibold py-2 bg-blue-200 text-gray-800 text-xs uppercase border border-gray-200">
@@ -159,7 +159,7 @@
 
                                     {{-- Modal Edit --}}
                                     <div id="editModal{{ $jadwal->id }}" tabindex="-1"
-                                        class="hidden fixed top-0 left-0 right-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
+                                        class="hidden fixed top-0 left-0 right-0 z-50 w-full h-full items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
                                         <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 my-8">
                                             <div class="p-4 border-b">
                                                 <h3 class="text-lg font-semibold">Edit Jadwal Patroli</h3>

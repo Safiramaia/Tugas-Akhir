@@ -164,9 +164,8 @@ class PatroliController extends Controller
         }
 
         // Kirim ke Fonnte
-        $token = env('FONNTE_TOKEN');
-        if (!$token)
-            return;
+        $token = trim(config('services.fonnte.token'));
+        if (!$token) return;
 
         $curl = curl_init();
 
