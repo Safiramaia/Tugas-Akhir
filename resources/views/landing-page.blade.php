@@ -89,7 +89,7 @@
     </header>
 
     <!-- Hero Section -->
-   <section class="bg-gray-50 flex items-center justify-center px-10 py-12 md:py-24 lg:py-32">
+     <section class="bg-gray-50 flex items-center justify-center px-12 py-[72px] md:py-24 lg:py-32">
         <div class="max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center gap-10">
             <!-- Text Content -->
             <div class="md:w-1/2 text-center md:text-left">
