@@ -44,9 +44,9 @@
         @endif
 
         <!-- Page Content -->
-        <main class="p-4 md:ml-64 h-auto pt-20 min-h-screen">
+       <main class="relative pt-16 md:ml-64 p-4 bg-white min-h-screen">
             {{ $slot }}
-    
+            
             <x-alert />
         </main>
     </div>

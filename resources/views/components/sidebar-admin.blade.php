@@ -1,7 +1,6 @@
 <aside id="drawer-navigation"
     class="fixed top-0 left-0 z-40 w-64 h-screen pt-14 transition-transform bg-white border-r border-gray-200 
-           -translate-x-full md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
-    aria-label="Sidenav">
+           -translate-x-full md:translate-x-0 dark:bg-gray-800 dark:border-gray-700">
     
     <div class="h-full overflow-y-auto py-5 px-3 bg-white dark:bg-gray-800">
         <ul class="space-y-3">
