@@ -1,29 +1,30 @@
 <x-app-layout :title="'Dashboard Petugas Security'">
-    {{-- Notifikasi jika masih ada lokasi yang belum dipatroli --}}
-    @if ($jumlahBelum > 0)
-        <div class="mt-6 mb-2 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded shadow">
-            <strong>Perhatian!</strong> Masih ada <strong>{{ $jumlahBelum }}</strong> lokasi yang belum dipatroli hari
-            ini.
-            Segera lakukan patroli untuk menyelesaikan tugas hari ini.
-        </div>
-    @endif
+   
+    <div class="max-w-7xl mx-auto p-2 space-y-2">
+         {{-- Notifikasi jika masih ada lokasi yang belum dipatroli --}}
+        @if ($jumlahBelum > 0)
+            <div class="mt-6 mb-2 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg shadow-md">
+                <strong>Perhatian!</strong> Masih ada <strong>{{ $jumlahBelum }}</strong> lokasi yang belum dipatroli hari
+                ini.
+                Segera lakukan patroli untuk menyelesaikan tugas hari ini.
+            </div>
+        @endif
+    
+        {{-- Notifikasi jika tidak ada jadwal patroli --}}
+        @if ($totalLokasi == 0)
+            <div class="mt-6 mb-2 p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded-lg shadow-md">
+                <strong>Informasi :</strong> Hari ini kamu tidak memiliki jadwal patroli.
+            </div>
+        @endif
 
-    {{-- Notifikasi jika tidak ada jadwal patroli --}}
-    @if ($totalLokasi == 0)
-        <div class="mt-6 mb-2 p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded shadow">
-            <strong>Informasi :</strong> Hari ini kamu tidak memiliki jadwal patroli.
-        </div>
-    @endif
-
-    <div class="max-w-7xl mx-auto p-6 space-y-6">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 mb-2">Selamat datang, {{ Auth::user()->nama }}</h1>
+            <h1 class="text-2xl font-semibold text-gray-800 mt-6 mb-2">Selamat datang, {{ Auth::user()->nama }}</h1>
             <p class="text-sm text-gray-600">Berikut adalah ringkasan kegiatan patrolimu hari ini.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {{-- Status Patroli --}}
-            <div class="p-5 bg-white border border-gray-200 rounded-xl shadow-sm">
+            <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-md">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2">Status Patroli Hari Ini</h2>
                 
                 {{-- Ringkasan jumlah lokasi --}}
@@ -58,7 +59,7 @@
             </div>
 
             {{-- Aktivitas Terakhir --}}
-            <div class="p-5 bg-white borderborder-gray-200 rounded-xl shadow-sm max-h-64 overflow-y-auto">
+            <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-md max-h-64 overflow-y-auto">
                 <h2 class="text-lg font-semibold text-gray-800 mb-3">Aktivitas Terakhir</h2>
                 <ul class="space-y-3 text-sm text-gray-700">
                     @forelse ($aktivitasTerakhir as $patroli)
@@ -85,7 +86,7 @@
         {{-- Tabel Lokasi Belum Dipatroli --}}
         <div>
             <h2 class="text-xl font-semibold text-gray-800 mb-4"> Daftar Lokasi Belum Dipatroli</h2>
-            <div class="overflow-x-auto bg-white borderborder-gray-200 rounded-xl shadow-sm">
+            <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-md">
                 <table class="w-full text-sm text-left text-gray-700">
                     <thead class="bg-blue-100 text-xs text-gray-700 uppercase">
                         <tr class="text-center">
