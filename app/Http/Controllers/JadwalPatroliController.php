@@ -40,14 +40,13 @@ class JadwalPatroliController extends Controller
         $startDate = $overrideStartDate ?? $bulan->copy()->startOfMonth();
         $endDate = $bulan->copy()->endOfMonth();
 
-        // Ambil semua petugas security yang terdaftar hingga akhir bulan
-        $users = User::where('role', 'petugas_security')
-            ->whereDate('created_at', '<=', $endDate->format('Y-m-d'))
+        // Ambil semua petugas security yang aktif (tanpa filter tanggal dulu)
+        $allUsers = User::where('role', 'petugas_security')
             ->orderBy('id')
             ->get();
 
-        // Jika tidak ada petugas, hentikan proses generate
-        if ($users->count() === 0)
+        // Jika tidak ada petugas sama sekali, hentikan proses
+        if ($allUsers->isEmpty())
             return;
 
         // Cari petugas terakhir yang bertugas sebelum tanggal mulai
@@ -55,19 +54,31 @@ class JadwalPatroliController extends Controller
             ->orderBy('tanggal', 'desc')
             ->first();
 
-        // Tentukan indeks awal giliran petugas berdasarkan petugas terakhir yang bertugas
-        $foundIndex = $users->search(fn($user) => $user->id == optional($lastPatrol)->user_id);
-        $lastUserIndex = $foundIndex !== false ? ($foundIndex + 1) % $users->count() : 0;
-
-        // Looping setiap hari dalam rentang tanggal untuk membuat jadwal
+        // Jalankan loop per tanggal
         foreach (Carbon::parse($startDate)->daysUntil($endDate) as $tanggal) {
-            // Generate jadwal hanya jika belum ada atau jika diizinkan untuk ditimpa
+            // Filter hanya user yang sudah aktif pada tanggal tersebut
+            $activeUsers = $allUsers->filter(function ($user) use ($tanggal) {
+                return $user->created_at->lte($tanggal);
+            })->values(); // reset index
+
+            // Lewati jika belum ada petugas aktif
+            if ($activeUsers->isEmpty())
+                continue;
+
+            // Cari index giliran berdasarkan jadwal terakhir
+            $foundIndex = $activeUsers->search(fn($user) => $user->id == optional($lastPatrol)->user_id);
+            $lastUserIndex = $foundIndex !== false ? ($foundIndex + 1) % $activeUsers->count() : 0;
+
+            // Generate jadwal hanya jika belum ada atau diizinkan overwrite
             if ($overwrite || !JadwalPatroli::whereDate('tanggal', $tanggal->format('Y-m-d'))->exists()) {
+                $assignedUser = $activeUsers[$lastUserIndex % $activeUsers->count()];
                 JadwalPatroli::updateOrCreate(
                     ['tanggal' => $tanggal->format('Y-m-d')],
-                    ['user_id' => $users[$lastUserIndex % $users->count()]->id]
+                    ['user_id' => $assignedUser->id]
                 );
-                $lastUserIndex++;
+
+                // Update "patroli terakhir" agar giliran tetap berlanjut
+                $lastPatrol = (object) ['user_id' => $assignedUser->id];
             }
         }
     }
@@ -90,9 +101,7 @@ class JadwalPatroliController extends Controller
         }
 
         //Menghapus jadwal patroli dari tanggal mulai hingga akhir bulan
-        JadwalPatroli::whereDate('tanggal', '>=', $startDate->format('Y-m-d'))
-            ->whereDate('tanggal', '<=', $currentMonth->copy()->endOfMonth()->format('Y-m-d'))
-            ->delete();
+        JadwalPatroli::whereDate('tanggal', '>=', $startDate->format('Y-m-d'))->delete();
 
         //Membuat ulang jadwal patroli mulai dari tanggal yang ditentukan
         $this->generateJadwalOtomatis($currentMonth, false, $startDate);
@@ -110,7 +119,7 @@ class JadwalPatroliController extends Controller
 
         // Ambil bulan dari tanggal yang dimasukkan
         $currentMonth = Carbon::parse($request->tanggal)->startOfMonth();
-        
+
         // Mencegah input jadwal jika bulan yang dipilih sudah lewat
         if ($currentMonth->lt(Carbon::now()->startOfMonth())) {
             return redirect()->route('jadwal-patroli.index', ['month' => $currentMonth->format('Y-m')])

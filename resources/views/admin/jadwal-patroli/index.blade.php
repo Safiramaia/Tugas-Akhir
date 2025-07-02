@@ -20,14 +20,14 @@
                         @csrf
                         <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
                         <button type="submit"
-                            class="w-full min-w-[150px] sm:min-w-[180px] whitespace-nowrap px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold text-center">
+                            class="w-full min-w-[80px] sm:min-w-[100px] whitespace-nowrap px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold text-center">
                             Generate Ulang
                         </button>
                     </form>
 
                     {{-- Tambah Jadwal --}}
                     <button data-modal-target="tambahModal" data-modal-toggle="tambahModal"
-                        class="w-full min-w-[150px] sm:min-w-[180px] whitespace-nowrap px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold text-center">
+                        class="w-full min-w-[80px] sm:min-w-[100px] whitespace-nowrap px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold text-center">
                         Tambah Jadwal
                     </button>
                     {{-- Modal Tambah Jadwal --}}
@@ -76,7 +76,7 @@
                     <form action="{{ route('jadwal-patroli.cetak-jadwal') }}" method="GET" class="w-full sm:w-auto">
                         <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
                         <button type="submit"
-                            class="inline-flex items-center justify-center w-full min-w-[150px] sm:min-w-[180px] whitespace-nowrap px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold text-center">
+                            class="inline-flex items-center justify-center w-full min-w-[80px] sm:min-w-[100px] whitespace-nowrap px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold text-center">
                             <svg class="w-4 h-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
                                 <path
@@ -90,7 +90,7 @@
         </div>
 
         {{-- Kalender --}}
-        <div class="w-full overflow-x-auto border border-gray-200 rounded-lg shadow-lg">
+       <div class="w-full overflow-x-auto border border-gray-200 rounded-lg shadow-md">
             <div class="min-w-[700px] grid grid-cols-7 gap-px text-center text-sm select-none">
                 {{-- Header Hari --}}
                 @foreach (['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'] as $day)
@@ -108,7 +108,7 @@
 
                 {{-- Sel kosong sebelum tanggal 1 --}}
                 @for ($i = 0; $i < $startDayOfWeek; $i++)
-                    <div class="border border-gray-200 h-32 sm:h-28 bg-gray-100"></div>
+                    <div class="border border-gray-200 h-24 bg-gray-100"></div>
                 @endfor
 
                 @php
@@ -125,24 +125,30 @@
                     @php
                         $date = $currentMonth->copy()->day($day)->format('Y-m-d');
                         $jadwalHariIni = $jadwalPatroli[$date] ?? [];
-                        $jadwal = $jadwalHariIni[0] ?? null;
-                        $bgColor = $jadwal ? $warnaPetugas[$jadwal->user_id] ?? 'bg-white' : 'bg-white';
+                    @endphp
+
+                    @php
+                        $bgColor = !empty($jadwalHariIni)
+                            ? $warnaPetugas[$jadwalHariIni[0]->user_id] ?? 'bg-white'
+                            : 'bg-white';
                     @endphp
 
                     <div
-                        class="border border-gray-200 p-2 h-32 sm:h-28 text-left relative group {{ $bgColor }} hover:bg-blue-50 rounded transition-all overflow-hidden">
+                        class="border border-gray-200 p-2 h-24 sm:h-28 text-left relative group {{ $bgColor }} hover:bg-blue-50 rounded transition-all overflow-hidden">
                         <div class="text-sm font-semibold text-gray-800">{{ $day }}</div>
 
-                        @if ($jadwal)
-                            <div class="text-sm mt-1 text-gray-900 truncate" title="{{ $jadwal->user->nama ?? '' }}">
+                        @if (!empty($jadwalHariIni))
+                            @php $jadwal = $jadwalHariIni[0]; @endphp
+                            <div class="text-sm mt-1 text-gray-900 truncate"
+                                title="{{ $jadwal->user->nama ?? 'Tidak ditemukan' }}">
                                 {{ $jadwal->user->nama ?? 'Tidak ditemukan' }}
                             </div>
                         @else
                             <span class="text-gray-400 text-xs italic mt-1 block">Belum dijadwalkan</span>
                         @endif
 
-                        @if ($jadwal)
-                            <div class="absolute top-1 right-1 hidden group-hover:flex flex-col gap-1 z-30">
+                        @if (!empty($jadwalHariIni))
+                            <div class="absolute top-1 right-1 hidden group-hover:flex flex-col gap-1 z-20">
                                 <div class="flex space-x-1">
                                     {{-- Edit Jadwal --}}
                                     <button data-modal-target="editModal{{ $jadwal->id }}"
@@ -156,11 +162,10 @@
                                                 clip-rule="evenodd" />
                                         </svg>
                                     </button>
-
-                                    {{-- Modal Edit --}}
+                                    {{-- Modal Edit Jadwal --}}
                                     <div id="editModal{{ $jadwal->id }}" tabindex="-1"
-                                        class="hidden fixed top-0 left-0 right-0 z-50 w-full h-full items-center justify-center bg-black bg-opacity-50 overflow-y-auto">
-                                        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 my-8">
+                                        class="hidden fixed top-0 left-0 right-0 z-50 w-full h-full items-center justify-center bg-black bg-opacity-50">
+                                        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
                                             <div class="p-4 border-b">
                                                 <h3 class="text-lg font-semibold">Edit Jadwal Patroli</h3>
                                             </div>
@@ -169,6 +174,7 @@
                                                 @csrf
                                                 @method('PUT')
                                                 <div>
+
                                                     <label for="user_id_edit_{{ $jadwal->id }}"
                                                         class="block mb-1 text-sm font-medium text-gray-700">Petugas</label>
                                                     <select id="user_id_edit_{{ $jadwal->id }}" name="user_id"
@@ -197,7 +203,6 @@
                                             </form>
                                         </div>
                                     </div>
-
                                     {{-- Hapus Jadwal --}}
                                     <form action="{{ route('jadwal-patroli.destroy', $jadwal->id) }}" method="POST"
                                         class="inline-block">
@@ -219,14 +224,13 @@
                         @endif
                     </div>
                 @endfor
-
                 {{-- Sel kosong setelah akhir bulan --}}
                 @php
                     $totalCells = $startDayOfWeek + $daysInMonth;
                     $remainingCells = 7 - ($totalCells % 7);
                     if ($remainingCells < 7) {
                         for ($i = 0; $i < $remainingCells; $i++) {
-                            echo '<div class="border border-gray-200 h-32 sm:h-28 bg-gray-100"></div>';
+                            echo '<div class="border border-gray-200 h-24 bg-gray-100"></div>';
                         }
                     }
                 @endphp
