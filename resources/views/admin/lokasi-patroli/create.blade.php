@@ -93,7 +93,7 @@
         draggable: true
     }).addTo(map);
 
-    // Area polygon sebagai batas lokasi
+    //Area polygon sebagai batas lokasi
     let area = L.polygon([
         [-7.674295, 109.062095], 
         [-7.674295, 109.062695], 

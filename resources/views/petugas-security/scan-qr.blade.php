@@ -15,34 +15,33 @@
 {{-- Memuat library HTML5 QR Code --}}
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         const resultContainer = document.getElementById('result');
         const html5QrCode = new Html5Qrcode("reader");
 
         let hasScanned = false;
 
         function onScanSuccess(decodedText, decodedResult) {
-    if (hasScanned) return;
-    hasScanned = true;
+            if (hasScanned) return;
+            hasScanned = true;
 
-    html5QrCode.stop().then(() => {
-        resultContainer.innerText = `QR Berhasil: ${decodedText}`;
+            html5QrCode.stop().then(() => {
+                resultContainer.innerText = `QR Berhasil: ${decodedText}`;
 
-        if (decodedText.startsWith('http://') || decodedText.startsWith('https://')) {
-            // Tambahkan jeda 2 detik sebelum redirect
-            setTimeout(() => {
-                window.location.href = decodedText;
-            }, 2000); // 2000ms = 2 detik
-        } else {
-            alert('QR code tidak valid!');
+                if (decodedText.startsWith('http://') || decodedText.startsWith('https://')) {
+                    // Tambahkan jeda 2 detik sebelum redirect
+                    setTimeout(() => {
+                        window.location.href = decodedText;
+                    }, 2000); // 2000ms = 2 detik
+                } else {
+                    alert('QR code tidak valid!');
+                }
+            }).catch(err => {
+                console.error("Gagal menghentikan scanner: ", err);
+            });
         }
-    }).catch(err => {
-        console.error("Gagal menghentikan scanner: ", err);
-    });
-}
-
-
-        // GUNAKAN METODE INI untuk memilih kamera belakang secara eksplisit
+        
+        // Mulai scanner dan ambil kamera belakang
         Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length) {
                 const backCam = devices.find(device =>
@@ -53,8 +52,13 @@
                 const cameraId = backCam ? backCam.id : devices[0].id;
 
                 html5QrCode.start(
-                    cameraId,
-                    { fps: 10, qrbox: { width: 300, height: 300 } },
+                    cameraId, {
+                        fps: 10,
+                        qrbox: {
+                            width: 300,
+                            height: 300
+                        }
+                    },
                     onScanSuccess
                 ).catch(err => {
                     alert("Gagal mulai scanner : " + err);

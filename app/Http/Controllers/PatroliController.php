@@ -152,7 +152,7 @@ class PatroliController extends Controller
             . "Tanggal : " . \Carbon\Carbon::parse($patroli->tanggal_patroli)->format('d-m-Y') . "\n"
             . "Waktu : " . \Carbon\Carbon::parse($patroli->waktu_patroli)->format('H:i');
 
-        // Payload dasar
+        //Payload dasar
         $payload = [
             'target' => $number,
             'message' => $message,
@@ -163,7 +163,7 @@ class PatroliController extends Controller
             $payload['url'] = asset('storage/' . $patroli->foto);
         }
 
-        // Kirim ke Fonnte
+        //Kirim ke Fonnte
         $token = trim(config('services.fonnte.token'));
         if (!$token) return;
 

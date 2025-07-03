@@ -12,22 +12,22 @@ class JadwalPatroliController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil parameter bulan dari permintaan, jika tidak ada gunakan bulan saat ini
+        //Mengambil parameter bulan dari permintaan, jika tidak ada gunakan bulan saat ini
         $monthParam = $request->input('month');
         $currentMonth = $monthParam ? Carbon::parse($monthParam . '-01') : Carbon::now();
 
-        // Ambil semua data jadwal patroli untuk bulan tersebut, termasuk data petugas (relasi user)
+        //Mengambil semua data jadwal patroli untuk bulan tersebut, termasuk data petugas 
         $jadwalPatroliRaw = JadwalPatroli::with('user')
             ->whereYear('tanggal', $currentMonth->year)
             ->whereMonth('tanggal', $currentMonth->month)
             ->get();
 
-        // Kelompokkan jadwal berdasarkan tanggal 
+        //Mengelompokkan jadwal berdasarkan tanggal 
         $jadwalPatroli = $jadwalPatroliRaw->groupBy(function ($item) {
             return Carbon::parse($item->tanggal)->format('Y-m-d');
         });
 
-        // Ambil semua pengguna dengan peran sebagai petugas security
+        //Mengambil semua pengguna dengan peran sebagai petugas security
         $users = User::where('role', 'petugas_security')->get();
 
         return view('admin.jadwal-patroli.index', compact('jadwalPatroli', 'currentMonth', 'users'));
@@ -36,11 +36,11 @@ class JadwalPatroliController extends Controller
     // Fungsi untuk membuat jadwal patroli otomatis selama satu bulan tertentu
     private function generateJadwalOtomatis(Carbon $bulan, bool $overwrite = false, ?Carbon $overrideStartDate = null)
     {
-        // Tentukan tanggal mulai dan akhir dari bulan yang dipilih
+        //Menentukan tanggal mulai dan akhir dari bulan yang dipilih
         $startDate = $overrideStartDate ?? $bulan->copy()->startOfMonth();
         $endDate = $bulan->copy()->endOfMonth();
 
-        // Ambil semua petugas security yang aktif (tanpa filter tanggal dulu)
+        //Mengambil semua petugas security yang aktif (tanpa filter tanggal dulu)
         $allUsers = User::where('role', 'petugas_security')
             ->orderBy('id')
             ->get();
@@ -49,12 +49,12 @@ class JadwalPatroliController extends Controller
         if ($allUsers->isEmpty())
             return;
 
-        // Cari petugas terakhir yang bertugas sebelum tanggal mulai
+        //Mencari petugas terakhir yang bertugas sebelum tanggal mulai
         $lastPatrol = JadwalPatroli::whereDate('tanggal', '<', $startDate->format('Y-m-d'))
             ->orderBy('tanggal', 'desc')
             ->first();
 
-        // Jalankan loop per tanggal
+        //Menjalankan loop per tanggal
         foreach (Carbon::parse($startDate)->daysUntil($endDate) as $tanggal) {
             // Filter hanya user yang sudah aktif pada tanggal tersebut
             $activeUsers = $allUsers->filter(function ($user) use ($tanggal) {
@@ -158,7 +158,6 @@ class JadwalPatroliController extends Controller
         return redirect()->route('jadwal-patroli.index')
             ->with('success', 'Jadwal patroli berhasil diperbarui.');
     }
-
 
     public function destroy(JadwalPatroli $jadwalPatroli)
     {

@@ -82,7 +82,7 @@
 </style>
 
 <script>
-    // Inisialisasi peta dengan posisi latitude dan longitude dari data yang sudah ada
+    //Inisialisasi peta dengan posisi latitude dan longitude dari data yang sudah ada
     let currentLat = {{ old('latitude', $lokasiPatroli->latitude) }};
     let currentLng = {{ old('longitude', $lokasiPatroli->longitude) }};
     let defaultPos = [-7.673995661475888, 109.06239516931424];
@@ -94,12 +94,12 @@
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    // Marker yang bisa dipindah
+    //Marker yang bisa dipindah
     let marker = L.marker([currentLat, currentLng], {
         draggable: true
     }).addTo(map);
 
-    // Area polygon sebagai batas lokasi
+    //Area polygon sebagai batas lokasi
     let area = L.polygon([
         [-7.674295, 109.062095],
         [-7.674295, 109.062695],

@@ -111,10 +111,12 @@
     const takePhotoBtn = document.getElementById('takePhotoBtn');
     const retakePhotoBtn = document.getElementById('retakePhotoBtn');
 
+    //Fungsi untuk memulai kamera
     function startCamera() {
         navigator.mediaDevices.enumerateDevices().then(devices => {
             const videoDevices = devices.filter(device => device.kind === 'videoinput');
 
+            // Mencari kamera belakang atau environment
             const backCamera = videoDevices.find(device =>
                 device.label.toLowerCase().includes('back') ||
                 device.label.toLowerCase().includes('environment')
@@ -151,6 +153,7 @@
 
     startCamera();
 
+    //Mengambil foto dan menampilkan preview
     takePhotoBtn.addEventListener('click', () => {
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
@@ -162,7 +165,7 @@
         const dataURL = canvas.toDataURL('image/jpeg');
         document.getElementById('fotoInput').value = dataURL;
 
-        // Tampilkan preview dan info, sembunyikan video dan tombol ambil foto
+        //Menampilkan preview dan info, sembunyikan video dan tombol ambil foto
         video.classList.add('hidden');
         preview.src = dataURL;
         preview.classList.remove('hidden');
@@ -171,6 +174,7 @@
         retakePhotoBtn.classList.remove('hidden');
     });
 
+    //Event listener untuk tombol ambil ulang foto
     retakePhotoBtn.addEventListener('click', () => {
         startCamera();
     });

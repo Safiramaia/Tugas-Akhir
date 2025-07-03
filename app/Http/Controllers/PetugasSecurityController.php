@@ -83,7 +83,7 @@ class PetugasSecurityController extends Controller
             ->where('tanggal', $today)
             ->exists();
 
-        // Jika tidak dijadwalkan, redirect ke dashboard dengan pesan error
+        //Jika tidak dijadwalkan, redirect ke dashboard dengan pesan error
         if (!$jadwalHariIni) {
             return redirect()->route('petugas-security.dashboard')
                 ->with('error', 'Anda tidak dijadwalkan patroli hari ini.');
@@ -106,11 +106,11 @@ class PetugasSecurityController extends Controller
                         ->orWhere('tanggal_patroli', 'like', '%' . $search . '%');
                 });
             })
-            // Filter berdasarkan status jika ada
+            //Filter berdasarkan status jika ada
             ->when($status, function ($query) use ($status) {
                 $query->where('status', $status);
             })
-            // Mengurutkan berdasarkan tanggal patroli terbaru
+            //Mengurutkan berdasarkan tanggal patroli terbaru
             ->orderByDesc('tanggal_patroli')
             ->paginate(10)
             ->withQueryString();
