@@ -112,7 +112,7 @@ class PetugasSecurityController extends Controller
             })
             // Mengurutkan berdasarkan tanggal patroli terbaru
             ->orderByDesc('tanggal_patroli')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('petugas-security.riwayat-patroli', compact('riwayatPatroli'));
