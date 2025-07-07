@@ -78,7 +78,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/data-lokasi-patroli', [KabidDukbisController::class, 'dataLokasiPatroli'])->name('kabid-dukbis.data-lokasi-patroli');
         Route::get('/laporan-patroli', [KabidDukbisController::class, 'laporanPatroli'])->name('kabid-dukbis.laporan-patroli');
         Route::get('/laporan-patroli/cetak', [KabidDukbisController::class, 'cetakLaporan'])->name('kabid-dukbis.cetak-laporan-patroli');
+        // Route::get('/laporan-patroli/verifikasi', [KabidDukbisController::class, 'verifikasiLaporan'])->name('kabid-dukbis.verifikasi-laporan-patroli');
     });
 });
+
+//Verifikasi laporan
+Route::get('/verifikasi-laporan', [KabidDukbisController::class, 'verifikasiLaporan'])->name('verifikasi-laporan-patroli');
 
 require __DIR__ . '/auth.php';  // Menambahkan route auth

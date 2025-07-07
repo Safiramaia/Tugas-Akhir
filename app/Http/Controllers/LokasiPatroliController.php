@@ -6,6 +6,7 @@ use App\Models\LokasiPatroli;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
 
 class LokasiPatroliController extends Controller
 {
@@ -30,7 +31,7 @@ class LokasiPatroliController extends Controller
         //URL dalam QR Code yang mengarahkan ke form patroli
         $url = route('patroli.create', ['lokasi' => $lokasi->id]);
         $qrCodeImage = QrCode::format('png')
-            ->size(300)
+            ->size(500)
             ->margin(2)
             ->generate($url);
 
@@ -107,10 +108,50 @@ class LokasiPatroliController extends Controller
 
     public function downloadQrCode(LokasiPatroli $lokasiPatroli)
     {
+        // Cek apakah file QR ada
         if (!$lokasiPatroli->qr_code || !Storage::disk('public')->exists($lokasiPatroli->qr_code)) {
             return redirect()->back()->with('error', 'QR Code tidak ditemukan.');
         }
 
-        return response()->download(storage_path('app/public/' . $lokasiPatroli->qr_code));
+        // Ambil path QR code
+        $qrPath = storage_path('app/public/' . $lokasiPatroli->qr_code);
+
+        // Baca gambar QR
+        $manager = new ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+        $qrImage = $manager->read($qrPath);
+
+        // Resize ke ukuran yang sama dengan generateQrCode (500x500)
+        $qrImage->resize(500, 500);
+
+        // Ukuran QR
+        $width = $qrImage->width();
+        $height = $qrImage->height();
+        $extraHeight = 80; // lebih tinggi agar teks tidak mepet
+        $canvasHeight = $height + $extraHeight;
+
+        // Buat canvas putih
+        $canvas = $manager->create($width, $canvasHeight)->fill('#ffffff');
+
+        // Path font
+        $fontPath = public_path('fonts/OpenSans.ttf'); 
+
+        // Tambahkan teks nama lokasi di atas QR
+        if (file_exists($fontPath)) {
+            $canvas->text($lokasiPatroli->nama_lokasi, $width / 2, 30, function ($font) use ($fontPath) {
+                $font->filename($fontPath);
+                $font->size(24); 
+                $font->color('#000000');
+                $font->align('center');
+                $font->valign('top');
+            });
+        }
+
+        // Tempel QR di bawah teks
+        $canvas->place($qrImage, 'top-left', 0, $extraHeight);
+
+        // Return sebagai file download PNG
+        return response($canvas->toPng()->toString())
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="qr_lokasi_' . $lokasiPatroli->id . '.png"');
     }
 }
