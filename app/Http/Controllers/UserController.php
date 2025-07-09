@@ -21,7 +21,7 @@ class UserController extends Controller
                 });
             })
             ->orderBy('nama')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.data-pengguna.index', compact('users', 'search'));
@@ -38,16 +38,18 @@ class UserController extends Controller
             'nama' => ['required', 'regex:/^[A-Za-z\s]+$/', 'max:30'],
             'email' => ['required', 'email', 'regex:/@gmail\.com$/', 'max:30', 'unique:users,email'],
             'nomor_induk' => ['required', 'string', 'regex:/^\d+$/', 'unique:users,nomor_induk'],
-            'no_telepon' => ['required', 'string', 'regex:/^\d+$/', 'digits_between:6,15'],
+            'no_telepon' => ['required', 'string', 'regex:/^\d+$/', 'digits_between:6,15', 'unique:users,no_telepon'],
             'alamat' => ['required', 'string'],
             'role' => ['required', 'in:admin,petugas_security,kabid_dukbis'],
             'password' => ['required', 'string', 'min:8', 'max:255'],
         ], [
             'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
             'email.regex' => 'Email harus menggunakan domain @gmail.com.',
+            'email.unique' => 'Email sudah terdaftar.',
             'nomor_induk.regex' => 'Nomor induk harus berupa angka.',
             'nomor_induk.unique' => 'Nomor induk sudah ada.',
             'no_telepon.regex' => 'Nomor telepon harus berupa angka.',
+            'no_telepon.unique' => 'Nomor telepon sudah digunakan.',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
@@ -70,15 +72,17 @@ class UserController extends Controller
             'nama' => ['required', 'regex:/^[A-Za-z\s]+$/', 'max:30'],
             'email' => ['required', 'email', 'regex:/@gmail\.com$/', 'max:30', 'unique:users,email,' . $user->id],
             'nomor_induk' => ['required', 'string', 'regex:/^\d+$/', 'unique:users,nomor_induk,' . $user->id],
-            'no_telepon' => ['required', 'string', 'regex:/^\d+$/', 'digits_between:6,15'],
+            'no_telepon' => ['required', 'string', 'regex:/^\d+$/', 'digits_between:6,15', 'unique:users,no_telepon,' . $user->id],
             'alamat' => ['required', 'string'],
             'role' => ['required', 'in:admin,petugas_security,kabid_dukbis'],
         ], [
             'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
             'email.regex' => 'Email harus menggunakan domain @gmail.com.',
+            'email.unique' => 'Email sudah terdaftar.',
             'nomor_induk.regex' => 'Nomor induk harus berupa angka.',
             'nomor_induk.unique' => 'Nomor induk sudah ada.',
             'no_telepon.regex' => 'Nomor telepon harus berupa angka.',
+            'no_telepon.unique' => 'Nomor telepon sudah digunakan.',
         ]);
 
         $user->update($validated);

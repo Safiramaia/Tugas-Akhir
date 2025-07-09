@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LokasiPatroli;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,7 @@ class LokasiPatroliController extends Controller
     {
         $search = $request->input('search');
 
-        $lokasiPatroli = LokasiPatroli::query()
+        $lokasiPatroli = LokasiPatroli::with('unitKerja') 
             ->when($search, function ($query, $search) {
                 $query->where('nama_lokasi', 'like', '%' . $search . '%');
             })
@@ -31,7 +32,7 @@ class LokasiPatroliController extends Controller
         //URL dalam QR Code yang mengarahkan ke form patroli
         $url = route('patroli.create', ['lokasi' => $lokasi->id]);
         $qrCodeImage = QrCode::format('png')
-            ->size(500)
+            ->size(300)
             ->margin(2)
             ->generate($url);
 
@@ -45,7 +46,8 @@ class LokasiPatroliController extends Controller
 
     public function create()
     {
-        return view('admin.lokasi-patroli.create');
+        $unitKerjaList = UnitKerja::orderBy('nama_unit')->get();
+        return view('admin.lokasi-patroli.create', compact('unitKerjaList'));
     }
 
     public function store(Request $request)
@@ -54,6 +56,7 @@ class LokasiPatroliController extends Controller
             'nama_lokasi' => 'required|string|max:40',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'unit_id' => 'required|exists:unit_kerja,id',
         ]);
 
         $lokasi = LokasiPatroli::create($validated);
@@ -66,7 +69,8 @@ class LokasiPatroliController extends Controller
 
     public function edit(LokasiPatroli $lokasiPatroli)
     {
-        return view('admin.lokasi-patroli.edit', compact('lokasiPatroli'));
+        $unitKerjaList = UnitKerja::orderBy('nama_unit')->get();
+        return view('admin.lokasi-patroli.edit', compact('lokasiPatroli', 'unitKerjaList'));
     }
 
     public function update(Request $request, LokasiPatroli $lokasiPatroli)
@@ -75,9 +79,10 @@ class LokasiPatroliController extends Controller
             'nama_lokasi' => 'required|string|max:40',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'unit_id' => 'required|exists:unit_kerja,id',
         ]);
 
-        $dataLama = $lokasiPatroli->only(['nama_lokasi', 'latitude', 'longitude']);
+        $dataLama = $lokasiPatroli->only(['nama_lokasi', 'latitude', 'longitude', 'unit_id']);
 
         $lokasiPatroli->update($validated);
 
@@ -133,13 +138,13 @@ class LokasiPatroliController extends Controller
         $canvas = $manager->create($width, $canvasHeight)->fill('#ffffff');
 
         // Path font
-        $fontPath = public_path('fonts/OpenSans.ttf'); 
+        $fontPath = public_path('fonts/OpenSans.ttf');
 
         // Tambahkan teks nama lokasi di atas QR
         if (file_exists($fontPath)) {
             $canvas->text($lokasiPatroli->nama_lokasi, $width / 2, 30, function ($font) use ($fontPath) {
                 $font->filename($fontPath);
-                $font->size(24); 
+                $font->size(24);
                 $font->color('#000000');
                 $font->align('center');
                 $font->valign('top');

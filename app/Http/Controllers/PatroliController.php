@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Patroli;
 use App\Models\LokasiPatroli;
 use App\Models\JadwalPatroli;
+use App\Models\KategoriKejadian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -14,20 +15,20 @@ class PatroliController extends Controller
 {
     public function create(Request $request)
     {
-        //Mengecek apakah user sudah login
+        // Mengecek apakah user sudah login
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        //Ambil lokasi berdasarkan query string ?lokasi=id.
+        // Ambil lokasi berdasarkan query string ?lokasi=id
         $lokasiId = $request->query('lokasi');
         $lokasiPatroli = LokasiPatroli::findOrFail($lokasiId);
 
-        //Mengambil ID user yang sedang login dan tanggal hari ini
+        // Mengambil ID user yang sedang login dan tanggal hari ini
         $userId = Auth::id();
         $today = now()->toDateString();
 
-        //Mengecek apakah petugas dijadwalkan patroli hari ini
+        // Mengecek apakah petugas dijadwalkan patroli hari ini
         $jadwal = JadwalPatroli::where('user_id', $userId)
             ->where('tanggal', $today)
             ->exists();
@@ -37,34 +38,43 @@ class PatroliController extends Controller
                 ->with('error', 'Anda tidak dijadwalkan patroli di lokasi ini hari ini.');
         }
 
-        return view('petugas-security.form-patroli', compact('lokasiPatroli'));
+        // Ambil semua kategori kejadian untuk ditampilkan di form
+        $kategoriKejadian = KategoriKejadian::all();
+
+        // Kirim ke view
+        return view('petugas-security.form-patroli', compact('lokasiPatroli', 'kategoriKejadian'));
     }
 
     public function store(Request $request)
     {
-        //Mengecek apakah user sudah login
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        $validated = $request->validate([
+        $rules = [
             'lokasi_id' => 'required|exists:lokasi_patroli,id',
             'status' => 'required|in:aman,darurat',
             'keterangan' => 'required|string',
             'foto' => 'required|string',
             // 'latitude' => 'required|numeric',
             // 'longitude' => 'required|numeric',
-        ]);
+        ];
 
-        //Mengecek apakah patroli di lokasi ini sudah dilakukan hari ini
+        if ($request->status === 'darurat') {
+            $rules['kejadian_id'] = 'required|exists:kategori_kejadian,id';
+        } else {
+            $rules['kejadian_id'] = 'nullable';
+        }
+
+        $validated = $request->validate($rules);
+
         $existingPatroli = Patroli::where('user_id', Auth::id())
             ->where('lokasi_id', $validated['lokasi_id'])
             ->where('tanggal_patroli', now()->toDateString())
             ->exists();
 
         if ($existingPatroli) {
-            return redirect()
-                ->route('petugas-security.dashboard')
+            return redirect()->route('petugas-security.dashboard')
                 ->with('error', 'Patroli di lokasi ini sudah dilakukan hari ini.');
         }
 
@@ -86,21 +96,26 @@ class PatroliController extends Controller
         //         ->with('error', 'Anda berada di luar radius lokasi patroli yang ditentukan (maks 50 meter).');
         // }
 
-        // Simpan foto base64 (jika ada)
+        // Simpan foto
         $fotoPath = null;
         if ($request->filled('foto')) {
             $base64Image = preg_replace('/^data:image\/\w+;base64,/', '', $request->foto);
             $imageData = base64_decode($base64Image);
             $filename = time() . '.jpg';
             $fotoPath = 'patroli/' . $filename;
-
             Storage::disk('public')->put($fotoPath, $imageData);
         }
+
+        // Ambil unit dari lokasi
+        $lokasi = LokasiPatroli::findOrFail($validated['lokasi_id']);
+        $unitId = $lokasi->unit_id;
 
         // Simpan data patroli
         $patroli = Patroli::create([
             'user_id' => Auth::id(),
             'lokasi_id' => $validated['lokasi_id'],
+            'unit_id' => $unitId,
+            'kejadian_id' => $validated['kejadian_id'] ?? null,
             'tanggal_patroli' => now()->toDateString(),
             'waktu_patroli' => now()->toTimeString(),
             'status' => $validated['status'],
@@ -108,13 +123,12 @@ class PatroliController extends Controller
             'foto' => $fotoPath,
         ]);
 
-        // Kirim notifikasi darurat jika statusnya "darurat"
-        if ($validated['status'] === 'darurat') {
+        // Kirim notifikasi hanya jika kategori daruratnya memang butuh dikirim
+        if ($patroli->status === 'darurat' && $patroli->kategoriKejadian && $patroli->kategoriKejadian->kirim_notifikasi) {
             $this->kirimNotifikasiDarurat($patroli);
         }
 
-        return redirect()
-            ->route('petugas-security.dashboard')
+        return redirect()->route('petugas-security.dashboard')
             ->with('success', 'Data patroli berhasil disimpan.');
     }
 
@@ -165,7 +179,8 @@ class PatroliController extends Controller
 
         //Kirim ke Fonnte
         $token = trim(config('services.fonnte.token'));
-        if (!$token) return;
+        if (!$token)
+            return;
 
         $curl = curl_init();
 

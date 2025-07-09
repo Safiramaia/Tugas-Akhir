@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\JadwalPatroli;
+use App\Models\PergantianPetugas;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -12,73 +13,113 @@ class JadwalPatroliController extends Controller
 {
     public function index(Request $request)
     {
-        //Mengambil parameter bulan dari permintaan, jika tidak ada gunakan bulan saat ini
+        // Ambil parameter bulan (default: bulan ini)
         $monthParam = $request->input('month');
         $currentMonth = $monthParam ? Carbon::parse($monthParam . '-01') : Carbon::now();
 
-        //Mengambil semua data jadwal patroli untuk bulan tersebut, termasuk data petugas 
+        // Ambil jadwal patroli lengkap bulan ini (dengan user)
         $jadwalPatroliRaw = JadwalPatroli::with('user')
             ->whereYear('tanggal', $currentMonth->year)
             ->whereMonth('tanggal', $currentMonth->month)
             ->get();
 
-        //Mengelompokkan jadwal berdasarkan tanggal 
+        // Kelompokkan berdasarkan tanggal (Y-m-d)
         $jadwalPatroli = $jadwalPatroliRaw->groupBy(function ($item) {
             return Carbon::parse($item->tanggal)->format('Y-m-d');
         });
 
-        //Mengambil semua pengguna dengan peran sebagai petugas security
+        // Ambil semua petugas
         $users = User::where('role', 'petugas_security')->get();
 
-        return view('admin.jadwal-patroli.index', compact('jadwalPatroli', 'currentMonth', 'users'));
+        // Hitung jumlah patroli per user (untuk rekap)
+        $jumlahPatroliPerUser = JadwalPatroli::selectRaw('user_id, count(*) as total')
+            ->whereYear('tanggal', $currentMonth->year)
+            ->whereMonth('tanggal', $currentMonth->month)
+            ->groupBy('user_id')
+            ->with('user')
+            ->get();
+
+        // Ambil histori pergantian petugas untuk bulan ini
+        $historiPergantian = PergantianPetugas::with(['jadwal', 'petugasLama', 'petugasBaru'])
+            ->whereHas('jadwal', function ($query) use ($currentMonth) {
+                $query->whereYear('tanggal', $currentMonth->year)
+                    ->whereMonth('tanggal', $currentMonth->month);
+            })
+            ->orderByDesc('waktu_pergantian')
+            ->get();
+
+        // Kirim ke view
+        return view('admin.jadwal-patroli.index', compact(
+            'jadwalPatroli',
+            'currentMonth',
+            'users',
+            'jumlahPatroliPerUser',
+            'historiPergantian'
+        ));
     }
 
     // Fungsi untuk membuat jadwal patroli otomatis selama satu bulan tertentu
     private function generateJadwalOtomatis(Carbon $bulan, bool $overwrite = false, ?Carbon $overrideStartDate = null)
     {
-        //Menentukan tanggal mulai dan akhir dari bulan yang dipilih
+        // Menentukan rentang tanggal
         $startDate = $overrideStartDate ?? $bulan->copy()->startOfMonth();
         $endDate = $bulan->copy()->endOfMonth();
 
-        //Mengambil semua petugas security yang aktif (tanpa filter tanggal dulu)
-        $allUsers = User::where('role', 'petugas_security')
-            ->orderBy('id')
-            ->get();
-
-        // Jika tidak ada petugas sama sekali, hentikan proses
+        // Ambil semua user petugas
+        $allUsers = User::where('role', 'petugas_security')->orderBy('id')->get();
         if ($allUsers->isEmpty())
             return;
 
-        //Mencari petugas terakhir yang bertugas sebelum tanggal mulai
-        $lastPatrol = JadwalPatroli::whereDate('tanggal', '<', $startDate->format('Y-m-d'))
-            ->orderBy('tanggal', 'desc')
-            ->first();
-
-        //Menjalankan loop per tanggal
+        // Hitung total shift dalam bulan ini
+        $totalShiftBulan = 0;
         foreach (Carbon::parse($startDate)->daysUntil($endDate) as $tanggal) {
-            // Filter hanya user yang sudah aktif pada tanggal tersebut
-            $activeUsers = $allUsers->filter(function ($user) use ($tanggal) {
-                return $user->created_at->lte($tanggal);
-            })->values(); // reset index
+            $hari = $tanggal->dayOfWeek;
+            $totalShiftBulan += in_array($hari, [0, 6]) ? 2 : 1;
+        }
 
-            // Lewati jika belum ada petugas aktif
-            if ($activeUsers->isEmpty())
-                continue;
+        $jumlahPetugas = $allUsers->count();
+        $maxPatroliPerUser = ceil($totalShiftBulan / max($jumlahPetugas, 1));
 
-            // Cari index giliran berdasarkan jadwal terakhir
-            $foundIndex = $activeUsers->search(fn($user) => $user->id == optional($lastPatrol)->user_id);
-            $lastUserIndex = $foundIndex !== false ? ($foundIndex + 1) % $activeUsers->count() : 0;
+        // Inisialisasi counter: user_id => jumlah jadwal
+        $jadwalCounter = [];
+        foreach ($allUsers as $user) {
+            $jadwalCounter[$user->id] = 0;
+        }
 
-            // Generate jadwal hanya jika belum ada atau diizinkan overwrite
-            if ($overwrite || !JadwalPatroli::whereDate('tanggal', $tanggal->format('Y-m-d'))->exists()) {
-                $assignedUser = $activeUsers[$lastUserIndex % $activeUsers->count()];
+        // Loop per tanggal
+        foreach (Carbon::parse($startDate)->daysUntil($endDate) as $tanggal) {
+            $hari = $tanggal->dayOfWeek;
+            $shifts = in_array($hari, [0, 6]) ? ['pagi', 'sore'] : ['sore'];
+
+            foreach ($shifts as $shift) {
+                // Ambil user yang aktif pada hari itu
+                $activeUsers = $allUsers->filter(fn($u) => $u->created_at->lte($tanggal))->pluck('id');
+
+                // Pilih user dengan jumlah jadwal paling sedikit, yang belum mencapai maksimal
+                $userTerpilih = collect($jadwalCounter)
+                    ->only($activeUsers)
+                    ->filter(fn($count) => $count < $maxPatroliPerUser)
+                    ->sort()
+                    ->keys()
+                    ->first();
+
+                // Lewati jika tidak ada yang bisa ditugaskan
+                if (!$userTerpilih)
+                    continue;
+
+                // Skip jika sudah ada jadwal dan overwrite = false
+                if (!$overwrite && JadwalPatroli::whereDate('tanggal', $tanggal)->where('shift', $shift)->exists()) {
+                    continue;
+                }
+
+                // Simpan ke database
                 JadwalPatroli::updateOrCreate(
-                    ['tanggal' => $tanggal->format('Y-m-d')],
-                    ['user_id' => $assignedUser->id]
+                    ['tanggal' => $tanggal->format('Y-m-d'), 'shift' => $shift],
+                    ['user_id' => $userTerpilih]
                 );
 
-                // Update "patroli terakhir" agar giliran tetap berlanjut
-                $lastPatrol = (object) ['user_id' => $assignedUser->id];
+                // Tambahkan counter
+                $jadwalCounter[$userTerpilih]++;
             }
         }
     }
@@ -115,48 +156,94 @@ class JadwalPatroliController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'tanggal' => 'required|date',
+            'shift' => 'required|in:pagi,sore',
         ]);
 
-        // Ambil bulan dari tanggal yang dimasukkan
-        $currentMonth = Carbon::parse($request->tanggal)->startOfMonth();
+        $tanggal = Carbon::parse($request->tanggal);
+        $hari = $tanggal->dayOfWeek; // 0 = Minggu, 6 = Sabtu
 
-        // Mencegah input jadwal jika bulan yang dipilih sudah lewat
-        if ($currentMonth->lt(Carbon::now()->startOfMonth())) {
-            return redirect()->route('jadwal-patroli.index', ['month' => $currentMonth->format('Y-m')])
-                ->with('error', 'Tidak dapat menambahkan jadwal untuk bulan yang sudah lewat.')
-                ->withInput();
+        // Jika hari bukan Sabtu/Minggu dan shift pagi dipilih, tolak
+        if (!in_array($hari, [0, 6]) && $request->shift == 'pagi') {
+            return back()->with('error', 'Shift pagi hanya diperbolehkan pada hari Sabtu dan Minggu.');
         }
 
-        // Mengecek apakah tanggal sudah memiliki jadwal
-        $exists = JadwalPatroli::whereDate('tanggal', $request->tanggal)->exists();
+        // Cek duplikasi shift pada tanggal dan shift yang sama
+        $exists = JadwalPatroli::whereDate('tanggal', $tanggal)
+            ->where('shift', $request->shift)
+            ->exists();
+
         if ($exists) {
-            return redirect()->route('jadwal-patroli.index')
-                ->with('error', 'Tanggal tersebut sudah memiliki petugas yang dijadwalkan.')
-                ->withInput();
+            return back()->with('error', 'Shift pada tanggal tersebut sudah diisi.')->withInput();
         }
 
-        // Simpan data jadwal baru
         JadwalPatroli::create([
             'user_id' => $request->user_id,
-            'tanggal' => $request->tanggal,
+            'tanggal' => $tanggal,
+            'shift' => $request->shift,
         ]);
 
         return redirect()->route('jadwal-patroli.index')
-            ->with('success', 'Jadwal patroli berhasil ditambahkan.');
+            ->with('success', 'Jadwal berhasil ditambahkan.');
     }
 
     public function update(Request $request, JadwalPatroli $jadwalPatroli)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
+            'shift' => 'required|in:pagi,sore',
+            'alasan_pergantian' => 'nullable|string|max:255',
         ]);
 
+        $tanggal = $jadwalPatroli->tanggal;
+        $hari = Carbon::parse($tanggal)->dayOfWeek;
+
+        // Validasi shift hanya hari Sabtu/Minggu untuk shift pagi
+        if (!in_array($hari, [0, 6]) && $request->shift == 'pagi') {
+            return back()->with('error', 'Shift pagi hanya diperbolehkan pada hari Sabtu dan Minggu.');
+        }
+
+        // Cek duplikasi shift
+        $exists = JadwalPatroli::where('tanggal', $tanggal)
+            ->where('shift', $request->shift)
+            ->where('id', '!=', $jadwalPatroli->id)
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Shift pada tanggal tersebut sudah diisi.');
+        }
+
+        // Cek pergantian petugas
+        if ($jadwalPatroli->user_id != $request->user_id) {
+
+            // Cek batas maksimal pergantian jadwal untuk petugas lama
+            $bulanIni = Carbon::now();
+            $jumlahPergantian = PergantianPetugas::where('petugas_lama_id', $jadwalPatroli->user_id)
+                ->whereMonth('waktu_pergantian', $bulanIni->month)
+                ->whereYear('waktu_pergantian', $bulanIni->year)
+                ->count();
+
+            if ($jumlahPergantian >= 2) {
+                return back()->with('error', 'Petugas ini sudah diganti 2x dalam bulan ini.');
+            }
+
+            // Simpan histori pergantian
+            PergantianPetugas::create([
+                'jadwal_id' => $jadwalPatroli->id,
+                'petugas_lama_id' => $jadwalPatroli->user_id,
+                'petugas_baru_id' => $request->user_id,
+                'waktu_pergantian' => now(),
+                'alasan' => $request->alasan_pergantian ?? 'Diganti oleh admin',
+            ]);
+        }
+
+        // Update jadwal
         $jadwalPatroli->update([
             'user_id' => $request->user_id,
+            'shift' => $request->shift,
         ]);
 
         return redirect()->route('jadwal-patroli.index')
-            ->with('success', 'Jadwal patroli berhasil diperbarui.');
+            ->with('success', 'Jadwal berhasil diperbarui.');
     }
 
     public function destroy(JadwalPatroli $jadwalPatroli)

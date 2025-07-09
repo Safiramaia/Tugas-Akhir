@@ -39,6 +39,7 @@
                             </div>
                             <form action="{{ route('jadwal-patroli.store') }}" method="POST" class="p-6 space-y-5">
                                 @csrf
+                                {{-- Pilih Petugas --}}
                                 <div>
                                     <label for="user_id" class="block mb-1 text-sm font-medium text-gray-700">
                                         Petugas
@@ -51,12 +52,25 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                {{-- Pilih Tanggal --}}
                                 <div>
                                     <label for="tanggal" class="block mb-1 text-sm font-medium text-gray-700">
                                         Tanggal
                                     </label>
                                     <input type="date" id="tanggal" name="tanggal" required
                                         class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
+                                </div>
+                                {{-- Pilih Shift --}}
+                                <div>
+                                    <label for="shift" class="block mb-1 text-sm font-medium text-gray-700">
+                                        Shift
+                                    </label>
+                                    <select id="shift" name="shift" required
+                                        class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
+                                        <option value="">-- Pilih Shift --</option>
+                                        <option value="pagi">Pagi</option>
+                                        <option value="sore">Sore</option>
+                                    </select>
                                 </div>
                                 <div class="flex justify-end gap-3 pt-4">
                                     <button type="button" data-modal-hide="tambahModal"
@@ -90,7 +104,7 @@
         </div>
 
         {{-- Kalender --}}
-       <div class="w-full overflow-x-auto border border-gray-200 rounded-lg shadow-md">
+        <div class="w-full overflow-x-auto border border-gray-200 rounded-lg shadow-md">
             <div class="min-w-[700px] grid grid-cols-7 gap-px text-center text-sm select-none">
                 {{-- Header Hari --}}
                 @foreach (['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'] as $day)
@@ -113,7 +127,7 @@
 
                 @php
                     $warnaPetugas = [];
-                    $daftarWarna = ['bg-red-400', 'bg-yellow-400', 'bg-blue-400', 'bg-orange-400', 'bg-purple-400'];
+                    $daftarWarna = ['bg-red-500', 'bg-yellow-500', 'bg-blue-500', 'bg-orange-500', 'bg-purple-500'];
 
                     foreach ($users as $index => $user) {
                         $warnaPetugas[$user->id] = $daftarWarna[$index % count($daftarWarna)];
@@ -128,9 +142,7 @@
                     @endphp
 
                     @php
-                        $bgColor = !empty($jadwalHariIni)
-                            ? $warnaPetugas[$jadwalHariIni[0]->user_id] ?? 'bg-white'
-                            : 'bg-white';
+                        $bgColor = 'bg-white';
                     @endphp
 
                     <div
@@ -138,89 +150,115 @@
                         <div class="text-sm font-semibold text-gray-800">{{ $day }}</div>
 
                         @if (!empty($jadwalHariIni))
-                            @php $jadwal = $jadwalHariIni[0]; @endphp
-                            <div class="text-sm mt-1 text-gray-900 truncate"
-                                title="{{ $jadwal->user->nama ?? 'Tidak ditemukan' }}">
-                                {{ $jadwal->user->nama ?? 'Tidak ditemukan' }}
-                            </div>
-                        @else
-                            <span class="text-gray-400 text-xs italic mt-1 block">Belum dijadwalkan</span>
-                        @endif
+                            @foreach ($jadwalHariIni as $jadwal)
+                                <div class="text-sm mt-1 truncate px-2 py-1 rounded text-white {{ $warnaPetugas[$jadwal->user->id] ?? 'bg-gray-400' }}"
+                                    title="{{ $jadwal->user->nama ?? 'Tidak ditemukan' }}">
+                                    {{ $jadwal->user->nama ?? 'Tidak ditemukan' }}
+                                    <span class="text-xs italic text-white ml-1">({{ ucfirst($jadwal->shift) }})</span>
+                                </div>
 
-                        @if (!empty($jadwalHariIni))
-                            <div class="absolute top-1 right-1 hidden group-hover:flex flex-col gap-1 z-20">
-                                <div class="flex space-x-1">
-                                    {{-- Edit Jadwal --}}
-                                    <button data-modal-target="editModal{{ $jadwal->id }}"
-                                        class="w-7 h-7 flex items-center justify-center text-white bg-yellow-400 hover:bg-yellow-500 font-medium rounded-lg"
-                                        type="button" aria-label="Edit jadwal {{ $jadwal->user->nama }}">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path
-                                                d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                                            <path fill-rule="evenodd"
-                                                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                    {{-- Modal Edit Jadwal --}}
-                                    <div id="editModal{{ $jadwal->id }}" tabindex="-1"
-                                        class="hidden fixed top-0 left-0 right-0 z-50 w-full h-full items-center justify-center bg-black bg-opacity-50">
-                                        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-                                            <div class="p-4 border-b">
-                                                <h3 class="text-lg font-semibold">Edit Jadwal Patroli</h3>
-                                            </div>
-                                            <form action="{{ route('jadwal-patroli.update', $jadwal->id) }}"
-                                                method="POST" class="p-6 space-y-5">
-                                                @csrf
-                                                @method('PUT')
-                                                <div>
-
-                                                    <label for="user_id_edit_{{ $jadwal->id }}"
-                                                        class="block mb-1 text-sm font-medium text-gray-700">Petugas</label>
-                                                    <select id="user_id_edit_{{ $jadwal->id }}" name="user_id"
-                                                        required
-                                                        class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
-                                                        <option value="">--- Pilih Petugas ---</option>
-                                                        @foreach ($users as $user)
-                                                            <option value="{{ $user->id }}"
-                                                                {{ $jadwal->user_id == $user->id ? 'selected' : '' }}>
-                                                                {{ $user->nama }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="flex justify-end gap-3 pt-4">
-                                                    <button type="button"
-                                                        data-modal-hide="editModal{{ $jadwal->id }}"
-                                                        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg font-semibold">
-                                                        Batal
-                                                    </button>
-                                                    <button type="submit"
-                                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-semibold">
-                                                        Perbarui
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    {{-- Hapus Jadwal --}}
-                                    <form action="{{ route('jadwal-patroli.destroy', $jadwal->id) }}" method="POST"
-                                        class="inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                            class="w-7 h-7 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white rounded-lg btn-hapus"
-                                            data-nama="{{ $jadwal->user->nama }}" title="Hapus Jadwal"
-                                            aria-label="Hapus jadwal {{ $jadwal->user->nama }}">
+                                <div class="absolute top-1 right-1 hidden group-hover:flex flex-col gap-1 z-20">
+                                    <div class="flex space-x-1">
+                                        {{-- Edit Jadwal --}}
+                                        <button data-modal-target="editModal{{ $jadwal->id }}"
+                                            class="w-7 h-7 flex items-center justify-center text-white bg-yellow-400 hover:bg-yellow-500 font-medium rounded-lg"
+                                            type="button" aria-label="Edit jadwal {{ $jadwal->user->nama }}">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path
+                                                    d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
                                                 <path fill-rule="evenodd"
-                                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                    d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
                                                     clip-rule="evenodd" />
                                             </svg>
                                         </button>
-                                    </form>
+
+                                        {{-- Modal Edit Jadwal --}}
+                                        <div id="editModal{{ $jadwal->id }}" tabindex="-1"
+                                            class="hidden fixed top-0 left-0 right-0 z-50 w-full h-full items-center justify-center bg-black bg-opacity-50">
+                                            <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+                                                <div class="p-4 border-b">
+                                                    <h3 class="text-lg font-semibold">Edit Jadwal Patroli</h3>
+                                                </div>
+                                                <form action="{{ route('jadwal-patroli.update', $jadwal->id) }}"
+                                                    method="POST" class="p-6 space-y-5">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    {{-- Pilih Petugas --}}
+                                                    <div>
+                                                        <label for="user_id_edit_{{ $jadwal->id }}"
+                                                            class="block mb-1 text-sm font-medium text-gray-700">Petugas</label>
+                                                        <select id="user_id_edit_{{ $jadwal->id }}" name="user_id"
+                                                            required
+                                                            class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
+                                                            <option value="">--- Pilih Petugas ---</option>
+                                                            @foreach ($users as $user)
+                                                                <option value="{{ $user->id }}"
+                                                                    {{ $jadwal->user_id == $user->id ? 'selected' : '' }}>
+                                                                    {{ $user->nama }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    {{-- Pilih Shift --}}
+                                                    <div>
+                                                        <label for="shift_edit_{{ $jadwal->id }}"
+                                                            class="block mb-1 text-sm font-medium text-gray-700">Shift</label>
+                                                        <select id="shift_edit_{{ $jadwal->id }}" name="shift"
+                                                            required
+                                                            class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300">
+                                                            <option value="">-- Pilih Shift --</option>
+                                                            <option value="pagi"
+                                                                {{ $jadwal->shift == 'pagi' ? 'selected' : '' }}>Pagi
+                                                            </option>
+                                                            <option value="sore"
+                                                                {{ $jadwal->shift == 'sore' ? 'selected' : '' }}>Sore
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                    {{-- Alasan Pergantian --}}
+                                                    <div>
+                                                        <label for="alasan_edit_{{ $jadwal->id }}"
+                                                            class="block mb-1 text-sm font-medium text-gray-700">Alasan
+                                                            Pergantian (Opsional)</label>
+                                                        <textarea id="alasan_edit_{{ $jadwal->id }}" name="alasan_pergantian" rows="2"
+                                                            class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm text-sm px-3 py-2 focus:ring focus:ring-blue-300"></textarea>
+                                                    </div>
+                                                    <div class="flex justify-end gap-3 pt-4">
+                                                        <button type="button"
+                                                            data-modal-hide="editModal{{ $jadwal->id }}"
+                                                            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg font-semibold">
+                                                            Batal
+                                                        </button>
+                                                        <button type="submit"
+                                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-semibold">
+                                                            Perbarui
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        {{-- Hapus Jadwal --}}
+                                        <form action="{{ route('jadwal-patroli.destroy', $jadwal->id) }}"
+                                            method="POST" class="inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button"
+                                                class="w-7 h-7 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white rounded-lg btn-hapus"
+                                                data-nama="{{ $jadwal->user->nama }}" title="Hapus Jadwal"
+                                                aria-label="Hapus jadwal {{ $jadwal->user->nama }}">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
+                            @endforeach
+                        @else
+                            <span class="text-gray-400 text-xs italic mt-1 block">Belum dijadwalkan</span>
                         @endif
                     </div>
                 @endfor
@@ -236,6 +274,74 @@
                 @endphp
             </div>
         </div>
+
+        {{-- Rekap Jumlah Patroli --}}
+        <div class="mt-4 bg-white p-2">
+            <h2 class="text-lg font-bold text-gray-800 mb-2">Rekap Jumlah Patroli Bulan {{ $currentMonth->translatedFormat('F Y') }}</h2>
+            <div class="overflow-x-auto rounded-lg shadow-lg border border-gray-200">
+                <table class="table-auto w-full text-sm text-gray-700">
+                    <thead class="bg-blue-200 text-gray-800 text-xs uppercase">
+                        <tr class="text-center">
+                            <th class="px-4 py-2">No</th>
+                            <th class="px-4 py-2 text-left">Nama Petugas</th>
+                            <th class="px-4 py-2">Jumlah Patroli</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse ($jumlahPatroliPerUser as $index => $rekap)
+                            <tr class="hover:bg-gray-50 text-center">
+                                <td class="px-4 py-2">{{ $index + 1 }}</td>
+                                <td class="px-4 py-2 text-left">{{ $rekap->user->nama }}</td>
+                                <td class="px-4 py-2">{{ $rekap->total }} kali</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-3 text-center text-gray-500">Belum ada jadwal
+                                    patroli.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Histori Pergantian --}}
+        @if ($historiPergantian->isNotEmpty())
+            <div class="mt-4 bg-white p-2">
+                <h2 class="text-lg font-bold text-gray-800 mb-2">Histori Pergantian Petugas Bulan {{ $currentMonth->translatedFormat('F Y') }}</h2>
+                <div class="overflow-x-auto rounded-lg shadow-lg border border-gray-200">
+                    <table class="table-auto w-full text-sm text-gray-700">
+                        <thead class="bg-blue-200 text-gray-800 uppercase text-xs">
+                            <tr class="text-center">
+                                <th class="px-4 py-3">No</th>
+                                <th class="px-4 py-3">Tanggal Patroli</th>
+                                <th class="px-4 py-3">Waktu Pergantian</th>
+                                <th class="px-4 py-3">Shift</th>
+                                <th class="px-4 py-3">Petugas Lama</th>
+                                <th class="px-4 py-3">Petugas Baru</th>
+                                <th class="px-4 py-3">Alasan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($historiPergantian as $index => $histori)
+                                <tr class="hover:bg-gray-100 text-center">
+                                    <td class="px-4 py-2">{{ $index + 1 }}</td>
+                                    <td class="px-4 py-2">
+                                        {{ \Carbon\Carbon::parse($histori->jadwal->tanggal)->format('d-m-Y') }}</td>
+                                    <td class="px-4 py-2">
+                                        {{ \Carbon\Carbon::parse($histori->waktu_pergantian)->format('d-m-Y H:i') }}
+                                    </td>
+                                    <td class="px-4 py-2">{{ ucfirst($histori->jadwal->shift) }}</td>
+                                    <td class="px-4 py-2">{{ $histori->petugasLama->nama ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $histori->petugasBaru->nama ?? '-' }}</td>
+                                    <td class="px-4 py-2 text-left">{{ $histori->alasan }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
     </div>
 </x-app-layout>
 

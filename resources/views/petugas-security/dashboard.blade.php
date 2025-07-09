@@ -1,15 +1,16 @@
 <x-app-layout :title="'Dashboard Petugas Security'">
-   
+
     <div class="max-w-7xl mx-auto p-2 space-y-2">
-         {{-- Notifikasi jika masih ada lokasi yang belum dipatroli --}}
+        {{-- Notifikasi jika masih ada lokasi yang belum dipatroli --}}
         @if ($jumlahBelum > 0)
             <div class="mt-6 mb-2 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg shadow-md">
-                <strong>Perhatian!</strong> Masih ada <strong>{{ $jumlahBelum }}</strong> lokasi yang belum dipatroli hari
+                <strong>Perhatian!</strong> Masih ada <strong>{{ $jumlahBelum }}</strong> lokasi yang belum dipatroli
+                hari
                 ini.
                 Segera lakukan patroli untuk menyelesaikan tugas hari ini.
             </div>
         @endif
-    
+
         {{-- Notifikasi jika tidak ada jadwal patroli --}}
         @if ($totalLokasi == 0)
             <div class="mt-6 mb-2 p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded-lg shadow-md">
@@ -26,7 +27,7 @@
             {{-- Status Patroli --}}
             <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-md">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2">Status Patroli Hari Ini</h2>
-                
+
                 {{-- Ringkasan jumlah lokasi --}}
                 <div class="space-y-1 text-sm text-gray-800">
                     <p class="flex space-x-1">
@@ -51,7 +52,8 @@
                     <div class="relative h-4 bg-gray-200 rounded-full overflow-hidden">
                         <div class="h-full bg-blue-500 transition-all duration-300 ease-in-out"
                             style="width: {{ $persentase }}%"></div>
-                        <div class="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-800">
+                        <div
+                            class="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-800">
                             {{ number_format($persentase, 1) }}%
                         </div>
                     </div>
@@ -84,32 +86,25 @@
         </div>
 
         {{-- Tabel Lokasi Belum Dipatroli --}}
-        <div>
-            <h2 class="text-xl font-semibold text-gray-800 mb-4"> Daftar Lokasi Belum Dipatroli</h2>
-            <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-md">
-                <table class="w-full text-sm text-left text-gray-700">
-                    <thead class="bg-blue-100 text-xs text-gray-700 uppercase">
+        <div class="mt-12 bg-white p-4">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">Daftar Lokasi Belum Dipatroli</h2>
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table class="table-auto w-full text-sm text-gray-700">
+                    <thead class="bg-blue-200 text-gray-800 uppercase text-xs">
                         <tr class="text-center">
                             <th class="px-4 py-3">No</th>
                             <th class="px-4 py-3 text-left">Nama Lokasi</th>
-                            <th class="px-4 py-3">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($belumDipatroli as $index => $lokasi)
-                            <tr class="text-center hover:bg-gray-50">
-                                <td class="px-4 py-3">{{ $index + 1 }}</td>
-                                <td class="px-4 py-3 text-left">{{ $lokasi->nama_lokasi }}</td>
-                                <td class="px-4 py-3">
-                                    <a href="{{ route('petugas-security.scan-qr', ['lokasi_id' => $lokasi->id]) }}"
-                                        class="inline-block whitespace-nowrap bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-medium hover:bg-blue-700 transition">
-                                        Scan QR
-                                    </a>
-                                </td>
+                            <tr class="hover:bg-gray-100 text-center">
+                                <td class="px-4 py-2">{{ $index + 1 }}</td>
+                                <td class="px-4 py-2 text-left">{{ $lokasi->nama_lokasi }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-4 text-center text-gray-500">Semua lokasi sudah
+                                <td colspan="2" class="px-4 py-4 text-center text-gray-500">Semua lokasi sudah
                                     dipatroli.</td>
                             </tr>
                         @endforelse

@@ -153,6 +153,7 @@
                 <th>No</th>
                 <th>Nama Petugas</th>
                 <th>Lokasi</th>
+                <th>Unit Kerja</th>
                 <th class="no-wrap">Tanggal</th>
                 <th>Waktu</th>
                 <th>Status</th>
@@ -165,6 +166,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $item->user->nama ?? '-' }}</td>
                     <td class="text-left">{{ $item->lokasiPatroli->nama_lokasi ?? '-' }}</td>
+                    <td class="text-center">{{ $item->unitKerja->nama_unit ?? '-' }}</td>
                     <td class="no-wrap">{{ \Carbon\Carbon::parse($item->tanggal_patroli)->format('d-m-Y') }}</td>
                     <td>{{ $item->waktu_patroli }}</td>
                     <td>{{ ucfirst($item->status) }}</td>

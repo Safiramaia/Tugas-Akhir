@@ -47,7 +47,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    
+
     public function jadwalPatroli()
     {
         return $this->hasMany(JadwalPatroli::class);
@@ -57,4 +57,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Patroli::class);
     }
+
+    public function digantikanDalamHistori()
+    {
+        return $this->hasMany(PergantianPetugas::class, 'petugas_lama_id');
+    }
+
+    public function menggantikanDalamHistori()
+    {
+        return $this->hasMany(PergantianPetugas::class, 'petugas_baru_id');
+    }
+
 }

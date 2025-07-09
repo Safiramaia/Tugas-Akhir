@@ -16,7 +16,27 @@
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-                
+
+                {{-- Unit Kerja --}}
+                <div>
+                    <label for="unit_id" class="block text-sm font-medium text-gray-700">
+                        Unit Kerja <span class="text-red-600">*</span>
+                    </label>
+                    <select id="unit_id" name="unit_id" required
+                        class="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="">-- Pilih Unit Kerja --</option>
+                        @foreach ($unitKerjaList as $unit)
+                            <option value="{{ $unit->id }}"
+                                {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+                                {{ $unit->nama_unit }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('unit_id')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {{-- Latitude --}}
                     <div>
@@ -79,7 +99,7 @@
 
 <script>
     //Inisialisasi peta
-    let defaultPos = [-7.673995661475888, 109.06239516931424]; 
+    let defaultPos = [-7.673995661475888, 109.06239516931424];
     let map = L.map('map').setView(defaultPos, 19);
 
     //Layer peta OpenStreetMap
@@ -95,10 +115,10 @@
 
     //Area polygon sebagai batas lokasi
     let area = L.polygon([
-        [-7.674295, 109.062095], 
-        [-7.674295, 109.062695], 
-        [-7.673695, 109.062695], 
-        [-7.673695, 109.062095] 
+        [-7.674295, 109.062095],
+        [-7.674295, 109.062695],
+        [-7.673695, 109.062695],
+        [-7.673695, 109.062095]
     ], {
         color: 'blue',
         fillColor: '#cce5ff',
@@ -138,6 +158,3 @@
         }
     });
 </script>
-
-
-

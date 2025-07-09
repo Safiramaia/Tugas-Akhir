@@ -1,4 +1,11 @@
 <x-app-layout :title="'Dashboard Admin'">
+    {{-- Menghitung jumlah petugas yang belum memenuhi target patroli minimal bulan ini --}}
+    @if (count($petugasKurangPatroli) > 0)
+        <div class="mt-6 mb-2 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg shadow-md">
+            Terdapat {{ count($petugasKurangPatroli) }} petugas yang belum memenuhi target patroli minimal bulan ini.
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 gap-4 mt-4 md:grid-cols-2 lg:grid-cols-3">
         {{-- Card Jumlah Pengguna --}}
         <a href="{{ route('data-pengguna.index') }}">
@@ -54,7 +61,7 @@
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         {{-- Aktivitas Patroli --}}
-        <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Aktivitas Patroli</h3>
                 <select id="filter" class="border-gray-300 rounded-md shadow-sm text-sm">
@@ -68,7 +75,7 @@
             </div>
         </div>
         {{-- Status Patroli --}}
-        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-200">
             <h2 class="text-lg font-semibold text-gray-700 dark:text-white mb-2">Status Patroli</h2>
             <div class="w-full max-w-xs mx-auto " style="height: 300px;">
                 <canvas id="statusDonutChart"></canvas>
@@ -87,16 +94,16 @@
     // Menyiapkan data aktivitas patroli berdasarkan filter waktu
     const dataSet = {
         harian: {
-            labels : @json($harianLabels),  
-            data : @json($harianData)     
+            labels: @json($harianLabels),
+            data: @json($harianData)
         },
         mingguan: {
-            labels : @json($mingguanLabels),
-            data : @json($mingguanData)      
+            labels: @json($mingguanLabels),
+            data: @json($mingguanData)
         },
         bulanan: {
-            labels : @json($bulananLabels),
-            data : @json($bulananData)       
+            labels: @json($bulananLabels),
+            data: @json($bulananData)
         }
     };
 
@@ -109,12 +116,12 @@
         data: {
             labels: dataSet[currentFilter].labels,
             datasets: [{
-                label : 'Jumlah Aktivitas Patroli',
-                data :  dataSet[currentFilter].data, 
-                backgroundColor: 'rgba(59, 130, 246, 0.5)', 
-                borderColor: 'rgba(59, 130, 246, 1)',       
+                label: 'Jumlah Aktivitas Patroli',
+                data: dataSet[currentFilter].data,
+                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                borderColor: 'rgba(59, 130, 246, 1)',
                 borderWidth: 1,
-                borderRadius: 6                             
+                borderRadius: 6
             }]
         },
         options: {
@@ -122,20 +129,22 @@
             maintainAspectRatio: false,
             scales: {
                 y: {
-                    beginAtZero: true,     
-                    ticks: { precision: 0 }
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
                 }
             },
             plugins: {
                 legend: {
                     labels: {
-                        color: '#111'      
+                        color: '#111'
                     }
                 }
             }
         }
     });
-    
+
     // Event listener untuk mengubah filter data saat dropdown diganti
     document.getElementById('filter').addEventListener('change', function() {
         const selected = this.value;
@@ -144,22 +153,22 @@
         // Perbarui data dan label grafik berdasarkan filter yang dipilih
         patroliChart.data.labels = dataSet[selected].labels;
         patroliChart.data.datasets[0].data = dataSet[selected].data;
-        patroliChart.update(); 
+        patroliChart.update();
     });
 
     // Inisialisasi grafik doughnut untuk menampilkan persentase status patroli
     const statusDonutChart = new Chart(document.getElementById('statusDonutChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Aman', 'Darurat'], 
+            labels: ['Aman', 'Darurat'],
             datasets: [{
                 data: [
-                    {{ $statusPatroli['aman'] ?? 0 }},    
-                    {{ $statusPatroli['darurat'] ?? 0 }}  
+                    {{ $statusPatroli['aman'] ?? 0 }},
+                    {{ $statusPatroli['darurat'] ?? 0 }}
                 ],
                 backgroundColor: [
-                    'rgba(34,197,94,0.8)',    
-                    'rgba(239,68,68,0.8)'     
+                    'rgba(34,197,94,0.8)',
+                    'rgba(239,68,68,0.8)'
                 ],
                 borderWidth: 1
             }]
@@ -167,7 +176,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '50%', 
+            cutout: '50%',
             plugins: {
                 legend: {
                     position: 'bottom',
@@ -183,7 +192,7 @@
                         const total = dataArr.reduce((a, b) => a + b, 0);
                         // Hitung persentase untuk masing-masing bagian
                         const percentage = ((value / total) * 100).toFixed(1);
-                        return percentage + '%'; 
+                        return percentage + '%';
                     },
                     font: {
                         weight: 'bold',
@@ -192,6 +201,6 @@
                 }
             }
         },
-        plugins: [ChartDataLabels] 
+        plugins: [ChartDataLabels]
     });
 </script>

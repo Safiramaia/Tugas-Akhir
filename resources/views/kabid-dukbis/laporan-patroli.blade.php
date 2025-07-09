@@ -24,7 +24,7 @@
                             </svg>
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari lokasi atau tanggal..." autocomplete="off"
+                            placeholder="Cari data laporan patroli..." autocomplete="off"
                             class="block w-full p-2 pl-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500" />
                     </div>
                     <button type="submit"
@@ -34,7 +34,7 @@
                 </div>
 
                 @if (request('search') || request('status'))
-                    <a href="{{ route('petugas-security.riwayat-patroli') }}"
+                    <a href="{{ route('kabid-dukbis.laporan-patroli') }}"
                         class="px-4 py-2 text-sm text-white bg-gray-400 hover:bg-gray-500 rounded-lg whitespace-nowrap">
                         Kembali
                     </a>
@@ -94,6 +94,7 @@
                         <th class="px-4 py-3">No</th>
                         <th class="px-4 py-3">Nama Petugas</th>
                         <th class="px-4 py-3">Lokasi</th>
+                        <th class="px-4 py-3">Unit Kerja</th>
                         <th class="px-4 py-3">Tanggal</th>
                         <th class="px-4 py-3">Waktu</th>
                         <th class="px-4 py-3">Status</th>
@@ -110,6 +111,9 @@
                             <td class="px-4 py-2">{{ $patroli->user->nama ?? 'Tidak diketahui' }}</td>
                             <td class="px-4 py-2 text-left">
                                 {{ $patroli->lokasiPatroli->nama_lokasi ?? 'Tidak diketahui' }}</td>
+                            <td class="px-4 py-2 text-center">
+                                {{ $patroli->unitKerja->nama_unit ?? '-' }}
+                            </td>
                             <td class="px-4 py-2 whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($patroli->tanggal_patroli)->format('d-m-Y') }}</td>
                             <td class="px-4 py-2">{{ $patroli->waktu_patroli }}</td>
@@ -160,14 +164,15 @@
             <div class="flex items-center justify-center min-h-screen p-4 sm:p-6">
                 <div class="relative w-full max-w-sm bg-white rounded-lg shadow-xl z-10">
                     <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                     <div class="p-4 sm:p-6 text-center">
-                        <h3 id="fotoModalNamaLokasi" class="text-base sm:text-lg font-semibold mb-4 text-gray-800"></h3>
+                        <h3 id="fotoModalNamaLokasi" class="text-base sm:text-lg font-semibold mb-4 text-gray-800">
+                        </h3>
                         <img id="fotoModalImg" src="" alt="Preview Foto"
                             class="mx-auto w-full max-w-[220px] sm:max-w-[280px] h-auto rounded shadow-md">
                     </div>

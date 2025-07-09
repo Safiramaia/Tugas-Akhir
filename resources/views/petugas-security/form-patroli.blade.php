@@ -12,6 +12,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                    {{-- Lokasi Patroli --}}
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700">Lokasi Patroli</label>
                         <input type="text" value="{{ $lokasiPatroli->nama_lokasi ?? 'Lokasi tidak ditemukan' }}"
@@ -19,6 +20,7 @@
                             class="mt-1 block w-full rounded-lg border border-blue-300 shadow-sm bg-blue-100 text-gray-700 focus:ring-blue-500 focus:border-blue-500 text-sm">
                     </div>
 
+                    {{-- Tanggal dan Waktu Patroli --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Tanggal Patroli</label>
                         <input type="text" value="{{ now()->toDateString() }}" readonly
@@ -31,6 +33,7 @@
                             class="mt-1 block w-full rounded-lg border border-blue-300 shadow-sm bg-blue-100 text-gray-700 focus:ring-blue-500 focus:border-blue-500 text-sm">
                     </div>
 
+                    {{-- Status Patroli --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Status <span class="text-red-600">*</span>
@@ -47,6 +50,21 @@
                         </div>
                     </div>
 
+                    {{-- Kategori Kejadian - hanya muncul jika status darurat --}}
+                    <div id="kategoriDaruratForm" class="md:col-span-2 hidden">
+                        <label for="kejadian_id" class="block text-sm font-medium text-gray-700">
+                            Kategori Kejadian <span class="text-red-600">*</span>
+                        </label>
+                        <select name="kejadian_id" id="kejadian_id"
+                            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm bg-white focus:ring-red-500 focus:border-red-500 text-sm">
+                            <option value="">-- Pilih Kategori --</option>
+                            @foreach ($kategoriKejadian as $kategori)
+                                <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Keterangan --}}
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700">
                             Keterangan <span class="text-red-600">*</span>
@@ -55,6 +73,7 @@
                             class="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm bg-white focus:ring-blue-500 focus:border-blue-500 text-sm"></textarea>
                     </div>
 
+                    {{-- Ambil Foto --}}
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Ambil Foto <span class="text-red-600">*</span>
@@ -179,6 +198,24 @@
         startCamera();
     });
 
+    //Toggle Kategori Kejadian
+    const statusAman = document.getElementById('status-aman');
+    const statusDarurat = document.getElementById('status-darurat');
+    const kategoriForm = document.getElementById('kategoriDaruratForm');
+
+    function toggleKategori() {
+        if (statusDarurat.checked) {
+            kategoriForm.classList.remove('hidden');
+        } else {
+            kategoriForm.classList.add('hidden');
+        }
+    }
+
+    statusAman.addEventListener('change', toggleKategori);
+    statusDarurat.addEventListener('change', toggleKategori);
+    document.addEventListener('DOMContentLoaded', toggleKategori);
+
+    // Geolocation (jika diperlukan)
     // document.addEventListener("DOMContentLoaded", function() {
     //     if (navigator.geolocation) {
     //         navigator.geolocation.getCurrentPosition(

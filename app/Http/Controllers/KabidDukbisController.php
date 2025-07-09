@@ -68,7 +68,7 @@ class KabidDukbisController extends Controller
         ));
     }
 
-    // Menampilkan data petugas security
+    //Menampilkan data petugas security
     public function dataPetugas(Request $request)
     {
         $search = $request->input('search');
@@ -90,7 +90,7 @@ class KabidDukbisController extends Controller
         return view('kabid-dukbis.data-petugas-security', compact('users', 'search'));
     }
 
-    // Menampilkan data lokasi patroli
+    //Menampilkan data lokasi patroli
     public function dataLokasiPatroli(Request $request)
     {
         $search = $request->input('search');
@@ -106,13 +106,13 @@ class KabidDukbisController extends Controller
         return view('kabid-dukbis.data-lokasi-patroli', compact('lokasiPatroli', 'search'));
     }
 
-    // Menampilkan laporan patroli
+    //Menampilkan laporan patroli
     public function laporanPatroli(Request $request)
     {
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $dataPatroli = Patroli::with(['user', 'lokasiPatroli'])
+        $dataPatroli = Patroli::with(['user', 'lokasiPatroli', 'unitKerja'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('user', function ($qUser) use ($search) {
@@ -120,6 +120,9 @@ class KabidDukbisController extends Controller
                     })
                         ->orWhereHas('lokasiPatroli', function ($qLokasi) use ($search) {
                             $qLokasi->where('nama_lokasi', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('unitKerja', function ($qUnit) use ($search) {
+                            $qUnit->where('nama_unit', 'like', '%' . $search . '%');
                         })
                         ->orWhere('tanggal_patroli', 'like', '%' . $search . '%');
                 });
@@ -134,9 +137,10 @@ class KabidDukbisController extends Controller
         return view('kabid-dukbis.laporan-patroli', compact('dataPatroli', 'search', 'status'));
     }
 
+
     public function cetakLaporan(Request $request)
     {
-        // 1. Validasi input dasar
+        //Validasi input dasar
         $validated = Validator::make($request->all(), [
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date'],
@@ -149,7 +153,7 @@ class KabidDukbisController extends Controller
             'status.in' => 'Status yang dipilih tidak valid.',
         ]);
 
-        // 2. Validasi lanjutan
+        //Validasi lanjutan
         $validated->after(function ($validator) use ($request) {
             if ($request->filled(['tanggal_mulai', 'tanggal_selesai'])) {
                 $start = Carbon::parse($request->tanggal_mulai);
@@ -173,13 +177,13 @@ class KabidDukbisController extends Controller
             return back()->withInput()->with('error', $validated->errors()->first());
         }
 
-        // 3. Ambil data input
+        //Mengambil data input
         $startDate = $request->tanggal_mulai;
         $endDate = $request->tanggal_selesai;
         $status = $request->status;
 
-        // 4. Query data patroli
-        $dataPatroli = Patroli::with(['user', 'lokasiPatroli'])
+        //Query data patroli
+        $dataPatroli = Patroli::with(['user', 'lokasiPatroli', 'unitKerja'])
             ->whereBetween('tanggal_patroli', [$startDate, $endDate])
             ->when($status, fn($query) => $query->where('status', $status))
             ->get();
@@ -188,25 +192,25 @@ class KabidDukbisController extends Controller
             return back()->with('error', 'Tidak ditemukan data patroli pada rentang tanggal dan status yang dipilih.');
         }
 
-        // 5. Ambil data user penandatangan
+        //Mengambil data user penandatangan
         $user = Auth::user();
 
-        // 6. Buat link verifikasi publik (route tanpa login)
+        //Membuat link verifikasi publik (route tanpa login)
         $linkVerifikasi = route('verifikasi-laporan-patroli', [
             'tanggal_mulai' => $startDate,
             'tanggal_selesai' => $endDate,
             'status' => $status
         ]);
 
-        // 7. Isi QR Code
+        //Mengisi QR Code
         $qrText = "Laporan Patroli\nDisahkan oleh : " . ($user->nama ?? '-') .
             "\nNomor Induk : " . ($user->nomor_induk ?? '-') .
             "\nTanggal : " . now()->translatedFormat('d F Y') .
-            "\n\nVerifikasi:\n" . $linkVerifikasi;
+            "\n\nVerifikasi :\n" . $linkVerifikasi;
 
         $qrCode = base64_encode(QrCode::format('png')->size(150)->generate($qrText));
 
-        // 8. Generate PDF
+        //Mengenerate PDF
         $pdf = Pdf::loadView('kabid-dukbis.cetak-laporan-patroli', [
             'data' => $dataPatroli,
             'startDate' => $startDate,

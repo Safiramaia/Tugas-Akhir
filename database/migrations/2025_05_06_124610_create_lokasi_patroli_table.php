@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('lokasi_patroli', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade');
             $table->string('nama_lokasi', 40);
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);

@@ -11,8 +11,10 @@ class JadwalPatroli extends Model
     protected $fillable = [
         'user_id',
         'tanggal',
+        'shift',
     ];
 
+    //Relasi ke tabel user (petugas)
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

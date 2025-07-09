@@ -3,11 +3,13 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\JadwalPatroliController;
 use App\Http\Controllers\KabidDukbisController;
+use App\Http\Controllers\KategoriKejadianController;
 use App\Http\Controllers\LokasiPatroliController;
 use App\Http\Controllers\PatroliController;
 use App\Http\Controllers\PetugasSecurityController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UnitKerjaController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +38,23 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{user}', [UserController::class, 'destroy'])->name('data-pengguna.destroy');
         });
 
+        // Data Unit Kerja
+        Route::prefix('unit-kerja')->group(function () {
+            Route::get('/', [UnitKerjaController::class, 'index'])->name('unit-kerja.index');
+            Route::post('/', [UnitKerjaController::class, 'store'])->name('unit-kerja.store');
+            Route::put('/{unitKerja}', [UnitKerjaController::class, 'update'])->name('unit-kerja.update');
+            Route::delete('/{unitKerja}', [UnitKerjaController::class, 'destroy'])->name('unit-kerja.destroy');
+        });
+
+        // Data Kategori Kejadian
+        Route::prefix('kategori-kejadian')->group(function () {
+            Route::get('/', [KategoriKejadianController::class, 'index'])->name('kategori-kejadian.index');
+            Route::post('/', [KategoriKejadianController::class, 'store'])->name('kategori-kejadian.store');
+            Route::get('/{kategoriKejadian}/edit', [KategoriKejadianController::class, 'edit'])->name('kategori-kejadian.edit');
+            Route::put('/{kategoriKejadian}', [KategoriKejadianController::class, 'update'])->name('kategori-kejadian.update');
+            Route::delete('/{kategoriKejadian}', [KategoriKejadianController::class, 'destroy'])->name('kategori-kejadian.destroy');
+        });
+
         // Jadwal Patroli
         Route::prefix('jadwal-patroli')->group(function () {
             Route::get('/', [JadwalPatroliController::class, 'index'])->name('jadwal-patroli.index');
@@ -58,6 +77,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/{lokasiPatroli}/download-qr', [LokasiPatroliController::class, 'downloadQrCode'])->name('lokasi-patroli.downloadQrCode');
         });
 
+        //Data Patroli
         Route::get('/data-patroli', [AdminController::class, 'dataPatroli'])->name('admin.data-patroli');
     });
 

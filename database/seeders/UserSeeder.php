@@ -23,6 +23,8 @@ class UserSeeder extends Seeder
             'nomor_induk' => '01202504001',    
             'alamat' => 'Jalan Nangka, Cilacap',
             'foto' => 'default.jpg',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

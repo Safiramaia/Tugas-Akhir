@@ -26,7 +26,7 @@
                                 </svg>
                             </div>
                             <input type="text" id="search" name="search" value="{{ request('search') }}"
-                                placeholder="Cari nama petugas, lokasi, atau tanggal..." autocomplete="off"
+                                placeholder="Cari data patroli..." autocomplete="off"
                                 class="block w-full p-2 pl-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500" />
                         </div>
                         <button type="submit"
@@ -53,6 +53,7 @@
                         <th class="px-4 py-3">No</th>
                         <th class="px-4 py-3">Nama Petugas</th>
                         <th class="px-4 py-3">Lokasi</th>
+                        <th class="px-4 py-3">Unit Kerja</th>
                         <th class="px-4 py-3">Tanggal</th>
                         <th class="px-4 py-3">Waktu</th>
                         <th class="px-4 py-3">Status</th>
@@ -68,6 +69,7 @@
                             </td>
                             <td class="px-4 py-2">{{ $data->user->nama ?? '-' }}</td>
                             <td class="px-4 py-2 text-left">{{ $data->lokasiPatroli->nama_lokasi ?? '-' }}</td>
+                            <td class="px-4 py-2 text-center">{{ $data->unitKerja->nama_unit ?? '-' }}</td>
                             <td class="px-4 py-2 whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($data->tanggal_patroli)->format('d-m-Y') }}</td>
                             <td class="px-4 py-2">{{ $data->waktu_patroli }}</td>

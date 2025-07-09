@@ -6,7 +6,7 @@
             <form action="{{ route('lokasi-patroli.update', $lokasiPatroli->id) }}" method="POST" class="space-y-6">
                 @csrf
                 @method('PUT')
-                
+
                 {{-- Nama Lokasi --}}
                 <div>
                     <label for="nama_lokasi" class="block text-sm font-medium text-gray-700">
@@ -16,6 +16,26 @@
                         value="{{ old('nama_lokasi', $lokasiPatroli->nama_lokasi) }}" required
                         class="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                     @error('nama_lokasi')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Unit Kerja --}}
+                <div>
+                    <label for="unit_id" class="block text-sm font-medium text-gray-700">
+                        Unit Kerja <span class="text-red-600">*</span>
+                    </label>
+                    <select id="unit_id" name="unit_id" required
+                        class="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="">-- Pilih Unit Kerja --</option>
+                        @foreach ($unitKerjaList as $unit)
+                            <option value="{{ $unit->id }}"
+                                {{ old('unit_id', $lokasiPatroli->unit_id) == $unit->id ? 'selected' : '' }}>
+                                {{ $unit->nama_unit }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('unit_id')
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>

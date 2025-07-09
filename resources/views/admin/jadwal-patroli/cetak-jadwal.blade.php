@@ -64,7 +64,7 @@
 
         .day-number {
             font-weight: bold;
-            color: #054e78;
+            color: #000;
             text-align: center;
             font-size: 14px;
             margin-bottom: 4px;
@@ -103,7 +103,7 @@
             4 => '#fbbf24', // kuning
             5 => '#3b82f6', // biru
             6 => '#22c55e', // hijau
-            7 => '#db2777', // pink magenta 
+            7 => '#db2777', // pink magenta
         ];
     @endphp
 
@@ -141,15 +141,18 @@
                                 <div class="day-number">{{ $cellDate->day }}</div>
                                 @php
                                     $jadwalHariIni = $jadwalPatroli[$cellDate->toDateString()] ?? collect();
+                                    $jadwalHariIni = $jadwalHariIni->sortBy('shift');
                                 @endphp
                                 @foreach ($jadwalHariIni as $jadwal)
                                     <div class="petugas"
                                         style="background-color: {{ $warnaPetugas[$jadwal->user_id] ?? '#e5e7eb' }};
-                                               color: #000;
-                                               padding: 4px;
-                                               border-radius: 4px;
-                                               margin-bottom: 2px;">
+                                            color: #000;
+                                            padding: 4px;
+                                            border-radius: 4px;
+                                            margin-bottom: 2px;">
                                         {{ $jadwal->user->nama }}
+                                        <span
+                                            style="font-size: 12px; font-style: italic;">({{ ucfirst($jadwal->shift) }})</span>
                                     </div>
                                 @endforeach
                             @endif

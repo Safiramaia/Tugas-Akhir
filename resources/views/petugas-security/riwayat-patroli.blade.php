@@ -6,7 +6,7 @@
             <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-4 py-3 bg-white">
                 <form action="{{ route('petugas-security.riwayat-patroli') }}" method="GET"
                     class="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
-                    
+
                     {{-- Status Filter --}}
                     <select name="status"
                         class="border border-gray-300 rounded-lg p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500 w-full md:w-40">
@@ -26,7 +26,7 @@
                                 </svg>
                             </div>
                             <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Cari lokasi atau tanggal..." autocomplete="off"
+                                placeholder="Cari riwayat patroli..." autocomplete="off"
                                 class="block w-full p-2 pl-10 text-sm text-gray-900 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500" />
                         </div>
                         <button type="submit"
@@ -52,6 +52,7 @@
                     <tr class="text-center">
                         <th class="px-4 py-3">No</th>
                         <th class="px-4 py-3">Lokasi</th>
+                        <th class="px-4 py-3">Unit Kerja</th>
                         <th class="px-4 py-3">Tanggal</th>
                         <th class="px-4 py-3">Waktu</th>
                         <th class="px-4 py-3">Status</th>
@@ -64,6 +65,9 @@
                         <tr class="hover:bg-gray-100 text-center">
                             <td class="px-4 py-2">{{ $loop->iteration }}</td>
                             <td class="px-4 py-2 text-left">{{ $item->lokasiPatroli->nama_lokasi ?? '-' }}</td>
+                            <td class="px-4 py-2 text-left">
+                                {{ $item->unitKerja->nama_unit ?? ($item->lokasiPatroli->unitKerja->nama_unit ?? '-') }}
+                            </td>
                             <td class="px-4 py-2 whitespace-nowrap">{{ $item->tanggal_patroli }}</td>
                             <td class="px-4 py-2">{{ $item->waktu_patroli }}</td>
                             <td class="px-4 py-2">
@@ -111,8 +115,8 @@
             <div class="flex items-center justify-center min-h-screen p-4 sm:p-6">
                 <div class="relative w-full max-w-sm bg-white rounded-lg shadow-xl z-10">
                     <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -126,7 +130,7 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         //Menampilkan modal foto
         function showFotoModal(imageUrl, namaLokasi) {
@@ -141,7 +145,7 @@
         }
 
         //Mengganti status filter
-        document.querySelector('select[name="status"]').addEventListener('change', function () {
+        document.querySelector('select[name="status"]').addEventListener('change', function() {
             this.form.submit();
         });
     </script>

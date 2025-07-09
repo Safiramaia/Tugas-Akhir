@@ -96,21 +96,22 @@ class PetugasSecurityController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $riwayatPatroli = Patroli::with('lokasiPatroli')
+        $riwayatPatroli = Patroli::with(['lokasiPatroli.unitKerja']) 
             ->where('user_id', Auth::id())
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('lokasiPatroli', function ($subQuery) use ($search) {
-                        $subQuery->where('nama_lokasi', 'like', '%' . $search . '%');
+                        $subQuery->where('nama_lokasi', 'like', '%' . $search . '%')
+                            ->orWhereHas('unitKerja', function ($unitQuery) use ($search) {
+                                $unitQuery->where('nama_unit', 'like', '%' . $search . '%');
+                            });
                     })
                         ->orWhere('tanggal_patroli', 'like', '%' . $search . '%');
                 });
             })
-            //Filter berdasarkan status jika ada
             ->when($status, function ($query) use ($status) {
                 $query->where('status', $status);
             })
-            //Mengurutkan berdasarkan tanggal patroli terbaru
             ->orderByDesc('tanggal_patroli')
             ->paginate(10)
             ->withQueryString();

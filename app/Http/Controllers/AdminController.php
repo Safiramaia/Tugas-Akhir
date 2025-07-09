@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\LokasiPatroli;
 use App\Models\Patroli;
+use App\Models\UnitKerja;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -14,25 +15,22 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        // Menghitung jumlah pengguna, lokasi patroli, dan patroli
         $jumlahPengguna = User::count();
         $jumlahLokasiPatroli = LokasiPatroli::count();
         $jumlahPatroli = Patroli::count();
 
-        // Data harian 7 hari terakhir
+        // Aktivitas Harian
         $harianLabels = [];
         $harianData = [];
-
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $harianLabels[] = Str::title($date->isoFormat('dddd')); 
+            $harianLabels[] = Str::title($date->isoFormat('dddd'));
             $harianData[] = Patroli::whereDate('tanggal_patroli', $date)->count();
         }
 
-        // Data mingguan 4 minggu terakhir
+        // Aktivitas Mingguan
         $mingguanLabels = [];
         $mingguanData = [];
-
         for ($i = 3; $i >= 0; $i--) {
             $startOfWeek = Carbon::now()->startOfWeek()->subWeeks($i);
             $endOfWeek = $startOfWeek->copy()->endOfWeek();
@@ -40,10 +38,9 @@ class AdminController extends Controller
             $mingguanData[] = Patroli::whereBetween('tanggal_patroli', [$startOfWeek, $endOfWeek])->count();
         }
 
-        // Data bulanan 12 bulan terakhir
+        // Aktivitas Bulanan
         $bulananLabels = [];
         $bulananData = [];
-
         for ($i = 11; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
             $bulananLabels[] = Str::title($month->isoFormat('MMMM'));
@@ -52,11 +49,23 @@ class AdminController extends Controller
                 ->count();
         }
 
-        // Menghitung status patroli
+        // Pie Chart Status
         $statusPatroli = Patroli::select('status', DB::raw('count(*) as total'))
             ->whereIn('status', ['aman', 'darurat'])
             ->groupBy('status')
             ->pluck('total', 'status');
+
+        // Notifikasi Petugas Kurang Patroli
+        $currentMonth = Carbon::now();
+        $minimalPatroli = 4;
+
+        $petugasKurangPatroli = User::where('role', 'petugas_security')->get()->filter(function ($user) use ($currentMonth, $minimalPatroli) {
+            $jumlah = Patroli::where('user_id', $user->id)
+                ->whereMonth('tanggal_patroli', $currentMonth->month)
+                ->whereYear('tanggal_patroli', $currentMonth->year)
+                ->count();
+            return $jumlah < $minimalPatroli;
+        });
 
         return view('admin.dashboard', compact(
             'jumlahPengguna',
@@ -68,7 +77,8 @@ class AdminController extends Controller
             'mingguanData',
             'bulananLabels',
             'bulananData',
-            'statusPatroli'
+            'statusPatroli',
+            'petugasKurangPatroli',
         ));
     }
 
@@ -77,7 +87,7 @@ class AdminController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $patroli = Patroli::with(['user', 'lokasiPatroli'])
+        $patroli = Patroli::with(['user', 'lokasiPatroli', 'unitKerja'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('user', function ($subQuery) use ($search) {
@@ -86,13 +96,15 @@ class AdminController extends Controller
                         ->orWhereHas('lokasiPatroli', function ($subQuery) use ($search) {
                             $subQuery->where('nama_lokasi', 'like', '%' . $search . '%');
                         })
+                        ->orWhereHas('unitKerja', function ($subQuery) use ($search) {
+                            $subQuery->where('nama_unit', 'like', '%' . $search . '%');
+                        })
                         ->orWhere('tanggal_patroli', 'like', '%' . $search . '%');
                 });
             })
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);
             })
-            // Mengurutkan berdasarkan tanggal patroli terbaru
             ->orderBy('tanggal_patroli', 'desc')
             ->paginate(10)
             ->withQueryString();
