@@ -197,25 +197,26 @@ class JadwalPatroliController extends Controller
         $tanggal = $jadwalPatroli->tanggal;
         $hari = Carbon::parse($tanggal)->dayOfWeek;
 
-        // Validasi shift hanya hari Sabtu/Minggu untuk shift pagi
         if (!in_array($hari, [0, 6]) && $request->shift == 'pagi') {
-            return back()->with('error', 'Shift pagi hanya diperbolehkan pada hari Sabtu dan Minggu.');
+            return back()->withInput()->with('error', 'Shift pagi hanya diperbolehkan pada hari Sabtu dan Minggu.');
         }
 
-        // Cek duplikasi shift
-        $exists = JadwalPatroli::where('tanggal', $tanggal)
-            ->where('shift', $request->shift)
-            ->where('id', '!=', $jadwalPatroli->id)
-            ->exists();
+        if (
+            $jadwalPatroli->user_id != $request->user_id ||
+            $jadwalPatroli->shift != $request->shift
+        ) {
+            $exists = JadwalPatroli::where('tanggal', $tanggal)
+                ->where('shift', $request->shift)
+                ->where('user_id', $request->user_id)
+                ->where('id', '!=', $jadwalPatroli->id)
+                ->exists();
 
-        if ($exists) {
-            return back()->with('error', 'Shift pada tanggal tersebut sudah diisi.');
+            if ($exists) {
+                return back()->withInput()->with('error', 'Shift pada tanggal tersebut sudah diisi.');
+            }
         }
 
-        // Cek pergantian petugas
         if ($jadwalPatroli->user_id != $request->user_id) {
-
-            // Cek batas maksimal pergantian jadwal untuk petugas lama
             $bulanIni = Carbon::now();
             $jumlahPergantian = PergantianPetugas::where('petugas_lama_id', $jadwalPatroli->user_id)
                 ->whereMonth('waktu_pergantian', $bulanIni->month)
@@ -223,10 +224,9 @@ class JadwalPatroliController extends Controller
                 ->count();
 
             if ($jumlahPergantian >= 2) {
-                return back()->with('error', 'Petugas ini sudah diganti 2x dalam bulan ini.');
+                return back()->withInput()->with('error', 'Petugas ini sudah diganti 2x dalam bulan ini.');
             }
 
-            // Simpan histori pergantian
             PergantianPetugas::create([
                 'jadwal_id' => $jadwalPatroli->id,
                 'petugas_lama_id' => $jadwalPatroli->user_id,
@@ -236,7 +236,6 @@ class JadwalPatroliController extends Controller
             ]);
         }
 
-        // Update jadwal
         $jadwalPatroli->update([
             'user_id' => $request->user_id,
             'shift' => $request->shift,
