@@ -223,8 +223,8 @@ class JadwalPatroliController extends Controller
                 ->whereYear('waktu_pergantian', $bulanIni->year)
                 ->count();
 
-            if ($jumlahPergantian >= 2) {
-                return back()->withInput()->with('error', 'Petugas ini sudah diganti 2x dalam bulan ini.');
+            if ($jumlahPergantian >= 3) {
+                return back()->withInput()->with('error', 'Petugas ini sudah diganti 3 kali dalam bulan ini.');
             }
 
             PergantianPetugas::create([
