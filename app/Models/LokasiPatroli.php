@@ -20,7 +20,7 @@ class LokasiPatroli extends Model
     ];
 
     //Relasi dengan tabel unit kerja
-    public function unitKerja()
+    public function unit()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
     }

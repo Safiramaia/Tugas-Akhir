@@ -65,7 +65,7 @@
                             </td>
                             <td class="px-4 py-2 text-left">{{ $data->nama_lokasi }}</td>
                             <td class="px-4 py-2 text-center">
-                                {{ $data->unitKerja?->nama_unit ?? '-' }}
+                                {{ $data->unit->nama_unit ?? '-' }}
                             </td>
                             <td class="px-4 py-2 text-center">{{ $data->latitude }}</td>
                             <td class="px-4 py-2 text-center">{{ $data->longitude }}</td>

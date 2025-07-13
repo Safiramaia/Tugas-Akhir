@@ -15,7 +15,7 @@ class LokasiPatroliController extends Controller
     {
         $search = $request->input('search');
 
-        $lokasiPatroli = LokasiPatroli::with('unitKerja') 
+        $lokasiPatroli = LokasiPatroli::with('unit') 
             ->when($search, function ($query, $search) {
                 $query->where('nama_lokasi', 'like', '%' . $search . '%');
             })

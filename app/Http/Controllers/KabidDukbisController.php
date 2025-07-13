@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\LokasiPatroli;
 use App\Models\Patroli;
+use App\Models\UnitKerja;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -96,7 +97,7 @@ class KabidDukbisController extends Controller
     {
         $search = $request->input('search');
 
-        $lokasiPatroli = LokasiPatroli::query()
+        $lokasiPatroli = LokasiPatroli::with('unit') 
             ->when($search, function ($query, $search) {
                 $query->where('nama_lokasi', 'like', '%' . $search . '%');
             })

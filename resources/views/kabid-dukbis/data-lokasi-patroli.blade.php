@@ -42,6 +42,7 @@
                     <tr class="text-center">
                         <th class="px-4 py-3">No</th>
                         <th class="px-4 py-3">Nama Lokasi</th>
+                        <th class="px-4 py-3">Unit Kerja</th>
                         <th class="px-4 py-3">Latitude</th>
                         <th class="px-4 py-3">Longitude</th>
                         <th class="px-4 py-3">QR Code</th>
@@ -54,6 +55,9 @@
                                 {{ $loop->iteration + ($lokasiPatroli->currentPage() - 1) * $lokasiPatroli->perPage() }}
                             </td>
                             <td class="px-4 py-2 text-left">{{ $lokasi->nama_lokasi }}</td>
+                            <td class="px-4 py-2 text-center">
+                                {{ $lokasi->unit->nama_unit ?? '-' }}
+                            </td>
                             <td class="px-4 py-2">{{ $lokasi->latitude }}</td>
                             <td class="px-4 py-2">{{ $lokasi->longitude }}</td>
                             <td class="px-4 py-2">
