@@ -37,6 +37,7 @@
                 </a>
             </div>
         </div>
+        
         {{-- Tabel Data Pengguna --}}
         <div class="overflow-x-auto rounded-lg shadow-lg border border-gray-200 mb-4">
             <table class="table-auto w-full text-sm text-gray-700">
@@ -104,6 +105,7 @@
                 </tbody>
             </table>
         </div>
+
         {{-- Pagination --}}
         <div class="flex justify-between items-center bg-white">
             <div class="text-sm text-gray-600">

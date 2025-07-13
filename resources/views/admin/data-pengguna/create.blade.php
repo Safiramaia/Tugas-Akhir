@@ -57,8 +57,28 @@
                                 Petugas Security</option>
                             <option value="kabid_dukbis" {{ old('role') == 'kabid_dukbis' ? 'selected' : '' }}>Kabid
                                 Dukbis</option>
+                            <option value="unit" {{ old('role') == 'unit' ? 'selected' : '' }}>Unit</option>
                         </select>
                         @error('role')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Nama Unit (muncul hanya jika role == unit) --}}
+                    <div id="unit-field" class="{{ old('role') == 'unit' ? '' : 'hidden' }}">
+                        <label for="unit_id" class="block text-sm font-medium text-gray-700">
+                            Nama Unit <span class="text-red-600">*</span>
+                        </label>
+                        <select id="unit_id" name="unit_id"
+                            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="">-- Pilih Unit --</option>
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+                                    {{ $unit->nama_unit }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('unit_id')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
@@ -138,5 +158,22 @@
                 icon.classList.add("text-gray-500");
             }
         }
+
+        // Tampilkan/hidden nama unit saat role berubah
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('role');
+            const unitField = document.getElementById('unit-field');
+
+            function toggleUnitField() {
+                if (roleSelect.value === 'unit') {
+                    unitField.classList.remove('hidden');
+                } else {
+                    unitField.classList.add('hidden');
+                }
+            }
+
+            roleSelect.addEventListener('change', toggleUnitField);
+            toggleUnitField(); // jalankan saat pertama dimuat
+        });
     </script>
 </x-app-layout>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -11,7 +12,7 @@ class UserController extends Controller
     {
         $search = $request->input('search');
 
-        $users = User::query()
+        $users = User::with('unit')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama', 'like', '%' . $search . '%')
@@ -29,7 +30,8 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('admin.data-pengguna.create');
+        $units = UnitKerja::orderBy('nama_unit')->get();
+        return view('admin.data-pengguna.create', compact('units'));
     }
 
     public function store(Request $request)
@@ -40,7 +42,8 @@ class UserController extends Controller
             'nomor_induk' => ['required', 'string', 'regex:/^\d+$/', 'unique:users,nomor_induk'],
             'no_telepon' => ['required', 'string', 'regex:/^\d+$/', 'digits_between:6,15', 'unique:users,no_telepon'],
             'alamat' => ['required', 'string'],
-            'role' => ['required', 'in:admin,petugas_security,kabid_dukbis'],
+            'role' => ['required', 'in:admin,petugas_security,kabid_dukbis,unit'],
+            'unit_id' => ['nullable', 'required_if:role,unit', 'exists:unit_kerja,id'],
             'password' => ['required', 'string', 'min:8', 'max:255'],
         ], [
             'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
@@ -50,6 +53,7 @@ class UserController extends Controller
             'nomor_induk.unique' => 'Nomor induk sudah ada.',
             'no_telepon.regex' => 'Nomor telepon harus berupa angka.',
             'no_telepon.unique' => 'Nomor telepon sudah digunakan.',
+            'unit_id.required_if' => 'Unit harus dipilih jika role unit.',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
@@ -63,7 +67,8 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        return view('admin.data-pengguna.edit', compact('user'));
+        $units = UnitKerja::orderBy('nama_unit')->get();
+        return view('admin.data-pengguna.edit', compact('user', 'units'));
     }
 
     public function update(Request $request, User $user)
@@ -74,7 +79,8 @@ class UserController extends Controller
             'nomor_induk' => ['required', 'string', 'regex:/^\d+$/', 'unique:users,nomor_induk,' . $user->id],
             'no_telepon' => ['required', 'string', 'regex:/^\d+$/', 'digits_between:6,15', 'unique:users,no_telepon,' . $user->id],
             'alamat' => ['required', 'string'],
-            'role' => ['required', 'in:admin,petugas_security,kabid_dukbis'],
+            'role' => ['required', 'in:admin,petugas_security,kabid_dukbis,unit'],
+            'unit_id' => ['nullable', 'required_if:role,unit', 'exists:unit_kerja,id'],
         ], [
             'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
             'email.regex' => 'Email harus menggunakan domain @gmail.com.',
@@ -83,6 +89,7 @@ class UserController extends Controller
             'nomor_induk.unique' => 'Nomor induk sudah ada.',
             'no_telepon.regex' => 'Nomor telepon harus berupa angka.',
             'no_telepon.unique' => 'Nomor telepon sudah digunakan.',
+            'unit_id.required_if' => 'Unit harus dipilih jika role unit.',
         ]);
 
         $user->update($validated);

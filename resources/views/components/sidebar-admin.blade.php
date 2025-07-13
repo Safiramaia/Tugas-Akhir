@@ -99,6 +99,25 @@
             {{-- DATA PATROLI --}}
             <li class="px-3 text-sm font-semibold text-gray-500 uppercase mt-6">Data Patroli</li>
             <li>
+                <a href="{{ route('admin.validasi-kejadian-darurat') }}"
+                    class="flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
+                        {{ request()->routeIs('admin.validasi-kejadian-darurat') ? 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                    <svg class="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor">
+                        <path
+                            d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
+                    </svg>
+                    <span class="ml-3">Validasi Kejadian</span>
+
+                    {{-- Badge jumlah validasi --}}
+                    @if ($jumlahValidasiPending > 0)
+                        <span class="ml-auto inline-block px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                            {{ $jumlahValidasiPending }}
+                        </span>
+                    @endif
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('admin.data-patroli') }}"
                     class="flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
                         {{ request()->routeIs('admin.data-patroli') ? 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">

@@ -129,7 +129,7 @@
     <!-- KOP SURAT -->
     <div class="kop-surat">
         <div class="kop-logo">
-            <img src="{{ public_path('assets/sucofindo.png') }}" alt="Logo">
+            <img src="{{ isset($preview) && $preview ? asset('assets/sucofindo.png') : public_path('assets/sucofindo.png') }}" alt="Logo">
         </div>
         <div class="kop-info">
             <h1>PT SUCOFINDO CABANG CILACAP</h1>
@@ -166,7 +166,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $item->user->nama ?? '-' }}</td>
                     <td class="text-left">{{ $item->lokasiPatroli->nama_lokasi ?? '-' }}</td>
-                    <td class="text-center">{{ $item->unitKerja->nama_unit ?? '-' }}</td>
+                    <td class="text-center">{{ $item->unit->nama_unit ?? '-' }}</td>
                     <td class="no-wrap">{{ \Carbon\Carbon::parse($item->tanggal_patroli)->format('d-m-Y') }}</td>
                     <td>{{ $item->waktu_patroli }}</td>
                     <td>{{ ucfirst($item->status) }}</td>

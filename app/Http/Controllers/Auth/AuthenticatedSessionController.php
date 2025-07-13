@@ -35,6 +35,8 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('petugas-security.dashboard');
         } elseif ($user->role === 'kabid_dukbis') {
             return redirect()->route('kabid-dukbis.dashboard');
+        } elseif ($user->role === 'unit') {
+            return redirect()->route('unit.dashboard');
         }
 
         // Default fallback

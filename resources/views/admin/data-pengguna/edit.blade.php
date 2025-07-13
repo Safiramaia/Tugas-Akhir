@@ -50,13 +50,36 @@
                             Hak Akses <span class="text-red-600">*</span>
                         </label>
                         <select id="role" name="role" required
-                            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            class="mt-1 block w-full rounded-lg border border-gray-200 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
                             <option value="">-- Pilih Hak Akses --</option>
                             <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                             <option value="petugas_security" {{ old('role', $user->role) == 'petugas_security' ? 'selected' : '' }}>Petugas Security</option>
                             <option value="kabid_dukbis" {{ old('role', $user->role) == 'kabid_dukbis' ? 'selected' : '' }}>Kabid Dukbis</option>
+                            <option value="unit" {{ old('role', $user->role) == 'unit' ? 'selected' : '' }}>Unit</option>
                         </select>
                         @error('role')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Field Unit (TAMPIL HANYA JIKA ROLE = UNIT) --}}
+                    @php
+                        $showUnitField = old('role', $user->role) === 'unit';
+                    @endphp
+                    <div id="unit-field" class="{{ $showUnitField ? '' : 'hidden' }}">
+                        <label for="unit_id" class="block text-sm font-medium text-gray-700">
+                            Nama Unit <span class="text-red-600">*</span>
+                        </label>
+                        <select id="unit_id" name="unit_id"
+                            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="">-- Pilih Unit --</option>
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->id }}" {{ old('unit_id', $user->unit_id) == $unit->id ? 'selected' : '' }}>
+                                    {{ $unit->nama_unit }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('unit_id')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
@@ -96,3 +119,18 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const roleSelect = document.getElementById('role');
+        const unitField = document.getElementById('unit-field');
+
+        function toggleUnitField() {
+            unitField.classList.toggle('hidden', roleSelect.value !== 'unit');
+        }
+
+        roleSelect.addEventListener('change', toggleUnitField);
+        toggleUnitField(); // panggil saat pertama kali load
+    });
+</script>
+

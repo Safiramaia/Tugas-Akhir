@@ -36,7 +36,31 @@ class KategoriKejadianSeeder extends Seeder
             ],
             [
                 'nama_kategori' => 'Konsleting Listrik',
-                'kirim_notifikasi' => false,
+                'kirim_notifikasi' => true, 
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nama_kategori' => 'Orang Tidak Dikenal',
+                'kirim_notifikasi' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nama_kategori' => 'Pencurian / Kehilangan',
+                'kirim_notifikasi' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nama_kategori' => 'Benda Mencurigakan',
+                'kirim_notifikasi' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nama_kategori' => 'Tumpahan Bahan Kimia',
+                'kirim_notifikasi' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

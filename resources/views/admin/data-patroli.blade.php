@@ -69,7 +69,7 @@
                             </td>
                             <td class="px-4 py-2">{{ $data->user->nama ?? '-' }}</td>
                             <td class="px-4 py-2 text-left">{{ $data->lokasiPatroli->nama_lokasi ?? '-' }}</td>
-                            <td class="px-4 py-2 text-center">{{ $data->unitKerja->nama_unit ?? '-' }}</td>
+                            <td class="px-4 py-2 text-center">{{ $data->unit->nama_unit ?? '-' }}</td>
                             <td class="px-4 py-2 whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($data->tanggal_patroli)->format('d-m-Y') }}</td>
                             <td class="px-4 py-2">{{ $data->waktu_patroli }}</td>

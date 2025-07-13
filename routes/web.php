@@ -9,6 +9,7 @@ use App\Http\Controllers\PatroliController;
 use App\Http\Controllers\PetugasSecurityController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UnitKerjaController;
 
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/{lokasiPatroli}/download-qr', [LokasiPatroliController::class, 'downloadQrCode'])->name('lokasi-patroli.downloadQrCode');
         });
 
+        // Validasi Kejadian Darurat
+        Route::get('/validasi-kejadian-darurat', [PatroliController::class, 'validasiKejadianDarurat'])->name('admin.validasi-kejadian-darurat');
+        Route::put('/validasi-kejadian-darurat/{id}', [PatroliController::class, 'updateValidasiDarurat'])->name('admin.update-validasi-darurat');
         //Data Patroli
         Route::get('/data-patroli', [AdminController::class, 'dataPatroli'])->name('admin.data-patroli');
     });
@@ -97,12 +101,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/data-petugas-security', [KabidDukbisController::class, 'dataPetugas'])->name('kabid-dukbis.data-petugas-security');
         Route::get('/data-lokasi-patroli', [KabidDukbisController::class, 'dataLokasiPatroli'])->name('kabid-dukbis.data-lokasi-patroli');
         Route::get('/laporan-patroli', [KabidDukbisController::class, 'laporanPatroli'])->name('kabid-dukbis.laporan-patroli');
-        Route::get('/laporan-patroli/cetak', [KabidDukbisController::class, 'cetakLaporan'])->name('kabid-dukbis.cetak-laporan-patroli');
+        Route::get('/laporan-patroli/cetak/redirect', [KabidDukbisController::class, 'redirectCetakLaporan'])->name('kabid-dukbis.cetak-laporan-patroli-redirect');
+        Route::get('/laporan-patroli/cetak/{token}', [KabidDukbisController::class, 'cetakLaporanTerenkripsi'])->name('kabid-dukbis.cetak-laporan-patroli');
         // Route::get('/laporan-patroli/verifikasi', [KabidDukbisController::class, 'verifikasiLaporan'])->name('kabid-dukbis.verifikasi-laporan-patroli');
+    });
+
+    // UNIT ROUTES
+    Route::middleware('role:unit')->prefix('unit')->group(function () {
+        Route::get('/dashboard', [UnitController::class, 'dashboard'])->name('unit.dashboard');
+        Route::get('/riwayat-patroli-petugas', [UnitController::class, 'patroliPetugas'])->name('unit.riwayat-patroli-petugas');
     });
 });
 
+// Route::get('kabid-dukbis/laporan-patroli/cetak/{token}', [KabidDukbisController::class, 'cetakLaporanTerenkripsi'])
+//     ->name('kabid-dukbis.cetak-laporan-patroli');
+
 //Verifikasi laporan
-Route::get('/verifikasi-laporan', [KabidDukbisController::class, 'verifikasiLaporan'])->name('verifikasi-laporan-patroli');
+Route::get('/verifikasi-laporan/{token}', [KabidDukbisController::class, 'verifikasiLaporanToken'])
+    ->name('verifikasi-laporan-patroli-token');
+
 
 require __DIR__ . '/auth.php';  // Menambahkan route auth

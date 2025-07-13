@@ -18,6 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'unit_id',
         'nama',
         'email',
         'password',
@@ -68,4 +69,8 @@ class User extends Authenticatable
         return $this->hasMany(PergantianPetugas::class, 'petugas_baru_id');
     }
 
+    public function unit()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id');
+    }
 }

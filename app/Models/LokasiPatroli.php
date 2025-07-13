@@ -30,5 +30,4 @@ class LokasiPatroli extends Model
     {
         return $this->hasMany(Patroli::class, 'lokasi_id'); 
     }
-
 }

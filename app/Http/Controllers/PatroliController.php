@@ -7,6 +7,7 @@ use App\Models\Patroli;
 use App\Models\LokasiPatroli;
 use App\Models\JadwalPatroli;
 use App\Models\KategoriKejadian;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -106,11 +107,15 @@ class PatroliController extends Controller
             Storage::disk('public')->put($fotoPath, $imageData);
         }
 
-        // Ambil unit dari lokasi
-        $lokasi = LokasiPatroli::findOrFail($validated['lokasi_id']);
+        // Ambil unit_id dari lokasi patroli
+        $lokasi = LokasiPatroli::findOrFail($request->lokasi_id);
         $unitId = $lokasi->unit_id;
 
-        // Simpan data patroli
+        if (!$unitId) {
+            return redirect()->route('petugas-security.dashboard')
+                ->with('error', 'Unit belum terhubung dengan lokasi patroli.');
+        }
+
         $patroli = Patroli::create([
             'user_id' => Auth::id(),
             'lokasi_id' => $validated['lokasi_id'],
@@ -196,5 +201,37 @@ class PatroliController extends Controller
 
         curl_exec($curl);
         curl_close($curl);
+    }
+
+    //Validasi kejadian darurat oleh admin
+    public function validasiKejadianDarurat()
+    {
+        $patroli = Patroli::with(['user', 'lokasiPatroli', 'unit'])
+            ->where('status', 'darurat')
+            ->whereNull('validasi_darurat')
+            ->latest()
+            ->paginate(10);
+
+        $unitKerja = UnitKerja::all();
+
+        return view('admin.validasi-kejadian-darurat', compact('patroli', 'unitKerja'));
+    }
+
+    public function updateValidasiDarurat(Request $request, $id)
+    {
+        $patroli = Patroli::findOrFail($id);
+
+        $request->validate([
+            'validasi_darurat' => 'required|in:valid,tidak_valid',
+            'unit_id' => 'nullable|exists:unit_kerja,id',
+        ]);
+
+        $patroli->update([
+            'validasi_darurat' => $request->validasi_darurat,
+            'unit_id' => $request->unit_id,
+        ]);
+
+        return redirect()->route('admin.validasi-kejadian-darurat')
+            ->with('success', 'Validasi kejadian darurat berhasil diperbarui.');
     }
 }

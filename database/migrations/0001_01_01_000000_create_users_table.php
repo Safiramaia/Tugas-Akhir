@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email', 30)->unique();
             // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'petugas_security', 'kabid_dukbis']);
+            $table->enum('role', ['admin', 'petugas_security', 'kabid_dukbis', 'unit']);
             $table->string('nomor_induk',12)->unique();
             $table->string('no_telepon', 15)->unique();
             $table->text('alamat');

@@ -68,6 +68,11 @@
                                 class="bg-blue-600 hover:bg-blue-700 text-white font-normal px-5 py-2 rounded-full transition">
                                 Dashboard Kabid Dukbis
                             </a>
+                        @elseif (auth()->user()->role === 'unit')
+                            <a href="{{ route('unit.dashboard') }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-normal px-5 py-2 rounded-full transition">
+                                Dashboard Unit
+                            </a>
                         @endif
                     @else
                         <a href="{{ route('login') }}"

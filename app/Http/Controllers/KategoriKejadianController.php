@@ -15,7 +15,7 @@ class KategoriKejadianController extends Controller
             $query->where('nama_kategori', 'like', '%' . $request->search . '%');
         }
 
-        $kategori = $query->orderBy('nama_kategori')->paginate(5);
+        $kategori = $query->orderBy('nama_kategori')->paginate(10);
 
         return view('admin.data-kategori-kejadian', compact('kategori'));
     }

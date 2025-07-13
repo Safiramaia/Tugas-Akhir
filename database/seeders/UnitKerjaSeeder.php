@@ -29,7 +29,7 @@ class UnitKerjaSeeder extends Seeder
              'created_at' => now(),
              'updated_at' => now(),
             ],
-            ['nama_unit' => 'OB',
+            ['nama_unit' => 'Umum',
              'created_at' => now(),
              'updated_at' => now(),
             ],

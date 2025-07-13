@@ -44,7 +44,7 @@
 
         {{-- Form Cetak --}}
         <div class="bg-white border border-gray-200 rounded-lg shadow-md mb-6 p-4">
-            <form action="{{ route('kabid-dukbis.cetak-laporan-patroli') }}" method="GET"
+            <form action="{{ route('kabid-dukbis.cetak-laporan-patroli-redirect') }}" method="GET" target="_blank"
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-end">
 
                 {{-- Hidden input status dari URL jika ada --}}
@@ -112,7 +112,7 @@
                             <td class="px-4 py-2 text-left">
                                 {{ $patroli->lokasiPatroli->nama_lokasi ?? 'Tidak diketahui' }}</td>
                             <td class="px-4 py-2 text-center">
-                                {{ $patroli->unitKerja->nama_unit ?? '-' }}
+                                {{ $patroli->unit->nama_unit ?? '-' }}
                             </td>
                             <td class="px-4 py-2 whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($patroli->tanggal_patroli)->format('d-m-Y') }}</td>

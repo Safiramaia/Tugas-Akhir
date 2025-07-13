@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('lokasi_id')->constrained('lokasi_patroli')->onDelete('cascade'); 
-            $table->foreignId('unit_id')->constrained('unit_kerja')->onDelete('cascade');
+            $table->foreignId('unit_id')->nullable()->constrained('unit_kerja')->onDelete('cascade');
             $table->foreignId('kejadian_id')->nullable()->constrained('kategori_kejadian')->onDelete('cascade');
             $table->date('tanggal_patroli');
             $table->time('waktu_patroli');
             $table->enum('status', ['aman', 'darurat']);
             $table->text('keterangan');
+            $table->enum('validasi_darurat', ['valid', 'tidak_valid'])->nullable();
             $table->string('foto'); 
             $table->timestamps();
         });

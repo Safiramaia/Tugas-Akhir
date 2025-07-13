@@ -20,7 +20,8 @@ class Patroli extends Model
         'waktu_patroli',
         'status',
         'keterangan',
-        'foto', 
+        'validasi_darurat',
+        'foto',
     ];
 
     // Relasi ke user (petugas)
@@ -36,11 +37,11 @@ class Patroli extends Model
     }
 
     // Relasi ke unit kerja
-    public function unitKerja()
+    public function unit()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
-
+    
     // Relasi ke kategori kejadian (jika sudah ditambahkan kolom ini di tabel patroli)
     public function kategoriKejadian()
     {

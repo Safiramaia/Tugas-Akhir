@@ -40,6 +40,8 @@
                 <x-sidebar-petugas />
             @elseif(Auth::user()->role == 'kabid_dukbis')
                 <x-sidebar-dukbis />
+            @elseif(Auth::user()->role == 'unit')
+                <x-sidebar-unit />
             @endif
         @endif
 
