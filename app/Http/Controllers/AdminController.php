@@ -57,7 +57,7 @@ class AdminController extends Controller
 
         //Notifikasi Petugas Kurang Patroli
         $currentMonth = Carbon::now();
-        $minimalPatroli = 10;
+        $minimalPatroli = 8;
 
         $petugasKurangPatroli = User::where('role', 'petugas_security')->get()->filter(function ($user) use ($currentMonth, $minimalPatroli) {
             $jumlah = Patroli::where('user_id', $user->id)

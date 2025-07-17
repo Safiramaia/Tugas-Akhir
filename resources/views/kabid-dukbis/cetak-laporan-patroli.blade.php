@@ -191,7 +191,7 @@
                 <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code">
             </div>
 
-            <p class="ttd-nama">{{ auth()->user()->nama ?? 'Nama Kepala' }}</p>
+           <p class="ttd-nama">{{ $namaKepala }}</p>
         </div>
     </div>
 </body>

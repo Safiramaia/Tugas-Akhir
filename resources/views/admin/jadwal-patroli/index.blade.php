@@ -21,7 +21,7 @@
                         <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
                         <button type="submit"
                             class="w-full min-w-[80px] sm:min-w-[100px] whitespace-nowrap px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-semibold text-center">
-                            Generate Jadwal
+                            Generate Ulang
                         </button>
                     </form>
 

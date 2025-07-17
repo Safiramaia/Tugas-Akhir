@@ -97,7 +97,7 @@ class KabidDukbisController extends Controller
     {
         $search = $request->input('search');
 
-        $lokasiPatroli = LokasiPatroli::with('unit') 
+        $lokasiPatroli = LokasiPatroli::with('unit')
             ->when($search, function ($query, $search) {
                 $query->where('nama_lokasi', 'like', '%' . $search . '%');
             })
@@ -209,7 +209,9 @@ class KabidDukbisController extends Controller
             return back()->with('error', 'Tidak ditemukan data patroli pada rentang tanggal dan status yang dipilih.');
         }
 
-        $user = Auth::user();
+        $kepala = User::where('role', 'kabid_dukbis')->first();
+        $namaKepala = $kepala?->nama ?? 'Nama Kepala';
+        $nomorInduk = $kepala?->nomor_induk ?? '-';
 
         // Enkripsi parameter
         $tokenVerifikasi = Crypt::encrypt([
@@ -219,11 +221,12 @@ class KabidDukbisController extends Controller
         ]);
 
         // Gunakan route dengan token saja
-        $linkVerifikasi = route('verifikasi-laporan-patroli-token', ['token' => $tokenVerifikasi]);
+        // $linkVerifikasi = route('verifikasi-laporan-patroli-token', ['token' => $tokenVerifikasi]);
+        // $linkVerifikasi = route('kabid-dukbis.cetak-laporan-patroli', ['token' => $token]);
+        $linkVerifikasi = url('/kabid-dukbis/laporan-patroli/cetak/' . $token);
 
-
-        $qrText = "Laporan Patroli\nDisahkan oleh : " . ($user->nama ?? '-') .
-            "\nNomor Induk : " . ($user->nomor_induk ?? '-') .
+        $qrText = "Laporan Patroli\nDisahkan oleh : $namaKepala" .
+            "\nNomor Induk : $nomorInduk" .
             "\nTanggal : " . now()->translatedFormat('d F Y') .
             "\n\nVerifikasi :\n" . $linkVerifikasi;
 
@@ -234,6 +237,8 @@ class KabidDukbisController extends Controller
             'startDate' => $startDate,
             'endDate' => $endDate,
             'qrCode' => $qrCode,
+            'namaKepala' => $namaKepala,
+            'nomorInduk' => $nomorInduk,
         ])->setPaper('A4', 'portrait');
 
         return $pdf->stream('laporan_patroli_' . now()->format('Ymd_His') . '.pdf');
